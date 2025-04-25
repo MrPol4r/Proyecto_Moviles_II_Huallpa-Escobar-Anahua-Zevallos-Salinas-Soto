@@ -10,8 +10,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
-  final _passCtrl  = TextEditingController();
+  final _emailCtrl = TextEditingController(text: 'user@correo.com');
+  final _passCtrl  = TextEditingController(text: 'password123');
   bool _loading = false;
 
   Future<void> _onLogin() async {
