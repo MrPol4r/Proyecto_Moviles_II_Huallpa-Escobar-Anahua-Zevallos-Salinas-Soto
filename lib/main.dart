@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/catalog_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Necesario antes de inicializar Firebase
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (ctx) => const LoginScreen(),
-        '/home': (ctx) => const HomeScreen(),
+        '/home': (ctx) => const MainScreen(),
         '/catalog': (ctx) => CatalogScreen(),
       },
     );
