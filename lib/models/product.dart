@@ -12,6 +12,8 @@ class Product {
   final List<String> tallas;
   final String descripcionTallas;
   final List<Map<String, dynamic>> comentarios;
+  //polar
+  final String categoria;
 
   Product({
     required this.id,
@@ -27,6 +29,8 @@ class Product {
     required this.tallas,
     required this.descripcionTallas,
     required this.comentarios,
+    //polar
+    required this.categoria,
   });
 
   factory Product.fromMap(String id, Map<String, dynamic> data) {
@@ -44,6 +48,8 @@ class Product {
       tallas: List<String>.from(data['tallas'] ?? []),
       descripcionTallas: data['descripcion_tallas'] ?? '',
       comentarios: List<Map<String, dynamic>>.from(data['comentarios'] ?? []),
+      //polar
+      categoria: data['categoria'] ?? 'Sin categoría',
     );
   }
 }
