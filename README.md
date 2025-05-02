@@ -1,1 +1,0 @@
-# Proyecto_Moviles_II_Huallpa-Escobar-Anahua-Zevallos-Salinas-Soto
