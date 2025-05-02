@@ -74,13 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _onLogin,
                     child: const Text('Ingresar'),
                   ),
-              const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/register');
-                    },
-                    child: const Text('¿No tienes cuenta? Regístrate'),
-                  ),
             ],
           ),
         ),
