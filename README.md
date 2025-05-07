@@ -16,6 +16,8 @@ Aplicación móvil desarrollada con **Flutter** para una tienda de ropa. Permite
 ## 📸 Capturas de Pantalla
 
 ### 🔐 Registro de Cuenta
+![Firebase](![image](https://github.com/user-attachments/assets/23babede-b2ed-4f09-901b-fca105ff01a1))
+
 ![Registro](https://github.com/user-attachments/assets/ad3948d7-264a-44c8-9e85-12387b527bee)
 
 ### 🔓 Login
