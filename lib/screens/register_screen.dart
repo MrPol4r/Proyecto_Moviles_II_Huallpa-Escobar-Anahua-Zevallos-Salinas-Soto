@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../routes/app_routes.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -33,8 +35,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _loading = false);
 
     if (success) {
-      // TODO: Guardar en Firestore nombre y teléfono
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      try {
+        final uid = FirebaseAuth.instance.currentUser!.uid;
+
+        await FirebaseFirestore.instance.collection('usuarios').doc(uid).set({
+          'nombre': _nameController.text.trim(),
+          'telefono': _phoneController.text.trim(),
+          'correo': _emailController.text.trim(),
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar en Firestore: $e')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al registrarse')),
@@ -73,9 +89,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     prefixIcon: Icon(Icons.phone),
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => value!.length < 9
-                      ? 'Número no válido'
-                      : null,
+                  validator: (value) =>
+                      value!.length < 9 ? 'Número no válido' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
