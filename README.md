@@ -39,4 +39,5 @@ Aplicación móvil desarrollada con **Flutter** para una tienda de ropa. Permite
 
 ## 🧪 Cómo ejecutar el proyecto
 
-1. Clona este repositorio:
+1. APK
+   
