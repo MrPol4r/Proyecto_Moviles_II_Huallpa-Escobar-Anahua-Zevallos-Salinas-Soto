@@ -1,29 +1,42 @@
-# tienda_ropas
+# 🛍️ tienda_ropas
 
-A new Flutter project.
+Aplicación móvil desarrollada con **Flutter** para una tienda de ropa. Permite a los usuarios registrarse, iniciar sesión, recuperar su contraseña y navegar por la interfaz de usuario.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Características principales
 
-A few resources to get you started if this is your first Flutter project:
+- Registro de usuarios
+- Inicio de sesión con Firebase Authentication
+- Recuperación de contraseña
+- Interfaz intuitiva y moderna
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📸 Capturas de Pantalla
 
-Registrar Cuenta
-![image](https://github.com/user-attachments/assets/ad3948d7-264a-44c8-9e85-12387b527bee)
+### 🔐 Registro de Cuenta
+![Registro](https://github.com/user-attachments/assets/ad3948d7-264a-44c8-9e85-12387b527bee)
 
-Login
-![image](https://github.com/user-attachments/assets/17173e34-803c-45dd-8887-b29ce757b262)
+### 🔓 Login
+![Login](https://github.com/user-attachments/assets/17173e34-803c-45dd-8887-b29ce757b262)
 
-Olvidar Contraseña
-![image](https://github.com/user-attachments/assets/cb45382c-0838-47e6-a4a0-dfdc4202445d)
+### ❓ Recuperar Contraseña
+![Olvidar Contraseña](https://github.com/user-attachments/assets/cb45382c-0838-47e6-a4a0-dfdc4202445d)
 
-![image](https://github.com/user-attachments/assets/19515038-133c-4eb1-8cc6-f12aaf499ae1)
+### 🖼️ Vista Adicional
+![Vista extra](https://github.com/user-attachments/assets/19515038-133c-4eb1-8cc6-f12aaf499ae1)
 
+---
 
+## ⚙️ Tecnologías utilizadas
+
+- **Flutter** (Dart)
+- **Firebase** (Authentication)
+- Arquitectura: Clean Architecture (opcional si aplica)
+
+---
+
+## 🧪 Cómo ejecutar el proyecto
+
+1. Clona este repositorio:
