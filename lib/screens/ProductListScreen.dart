@@ -78,6 +78,30 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 itemBuilder: (_, i) {
                   final p = productos[i];
                   return ListTile(
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child:
+                          p.imagenes.isNotEmpty
+                              ? Image.network(
+                                p.imagenes[0],
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (context, error, stackTrace) => Image.asset(
+                                      'assets/images/placeholder.png',
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                    ),
+                              )
+                              : Image.asset(
+                                'assets/images/placeholder.png',
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
+                    ),
                     title: Text(p.nombre),
                     subtitle: Text('Stock: ${p.stock} - Estado: ${p.estado}'),
                     trailing: Row(

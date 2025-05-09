@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'AdminDashboardScreen.dart';
+import 'main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,12 +22,39 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = true);
 
     try {
-      final ok = await AuthService.signIn(
-        _emailCtrl.text.trim(),
-        _passCtrl.text.trim(),
-      );
+      final email = _emailCtrl.text.trim();
+      final password = _passCtrl.text.trim();
+      final ok = await AuthService.signIn(email, password);
+
       if (ok) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        final snapshot =
+            await FirebaseFirestore.instance
+                .collection('usuario')
+                .where('usuario', isEqualTo: email)
+                .limit(1)
+                .get();
+
+        if (snapshot.docs.isNotEmpty) {
+          final userData = snapshot.docs.first.data();
+          final rol = userData['rol'] ?? 'usuarios';
+
+          if (rol.toString().toLowerCase() == 'administrador') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const MainScreen()),
+            );
+          }
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Credenciales incorrectas')),
@@ -75,12 +105,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: const Text('Ingresar'),
                   ),
               const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/register');
-                    },
-                    child: const Text('¿No tienes cuenta? Regístrate'),
-                  ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/register');
+                },
+                child: const Text('¿No tienes cuenta? Regístrate'),
+              ),
             ],
           ),
         ),

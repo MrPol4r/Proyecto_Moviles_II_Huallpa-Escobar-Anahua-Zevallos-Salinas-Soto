@@ -105,26 +105,15 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
   Future<void> _subirImagenDesdeGaleria() async {
     final picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final List<XFile> pickedFiles = await picker.pickMultiImage();
 
-    if (pickedFile != null) {
-      final File file = File(pickedFile.path);
-      final url = await subirImagenACloudinary(file);
-
-      if (url != null) {
-        setState(() {
-          imagenes.add(url);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Imagen subida a Cloudinary')),
-        );
-      } else {
-        print('Error al subir la imagen');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al subir la imagen')),
-        );
+    if (pickedFiles.isNotEmpty) {
+      for (final pickedFile in pickedFiles) {
+        final File file = File(pickedFile.path);
+        final url = await subirImagenACloudinary(file);
+        if (url != null) {
+          setState(() => imagenes.add(url));
+        }
       }
     }
   }
@@ -228,11 +217,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 const SizedBox(height: 20),
                 _buildChipInput('Colores', colores, _nuevoColorController),
                 _buildChipInput('Tallas', tallas, _nuevaTallaController),
-                _buildChipInput(
-                  'Imágenes (URL)',
-                  imagenes,
-                  _nuevaImagenController,
-                ),
+                _buildImagePreviewSection(),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.image),
                   label: const Text('Subir desde galería'),
@@ -240,7 +225,17 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _guardarProducto,
+                  onPressed: () {
+                    if (imagenes.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Debe subir al menos una imagen'),
+                        ),
+                      );
+                      return;
+                    }
+                    _guardarProducto();
+                  },
                   child: Text(
                     widget.productoExistente == null
                         ? 'Agregar'
@@ -252,6 +247,63 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildImagePreviewSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Imágenes del producto',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children:
+              imagenes.map((url) {
+                return Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        url,
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (context, error, stackTrace) => Image.asset(
+                              'assets/images/placeholder.png',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: InkWell(
+                        onTap: () => setState(() => imagenes.remove(url)),
+                        child: const CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.black54,
+                          child: Icon(
+                            Icons.close,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+        ),
+        const SizedBox(height: 12),
+      ],
     );
   }
 
@@ -295,31 +347,28 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               lista.map((item) {
                 return Chip(
                   label: Text(item),
-                  onDeleted: () => setState(() => lista.remove(item)),
+                  onDeleted: () {
+                    setState(() {
+                      lista.remove(item);
+                    });
+                  },
                 );
               }).toList(),
         ),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                decoration: InputDecoration(labelText: 'Nuevo $label'),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                final texto = controller.text.trim();
-                if (texto.isNotEmpty) {
-                  setState(() {
-                    lista.add(texto);
-                    controller.clear();
-                  });
-                }
-              },
-            ),
-          ],
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: 'Agregar $label',
+            border: const OutlineInputBorder(),
+          ),
+          onFieldSubmitted: (value) {
+            if (value.trim().isNotEmpty) {
+              setState(() {
+                lista.add(value.trim());
+                controller.clear();
+              });
+            }
+          },
         ),
         const SizedBox(height: 10),
       ],

@@ -24,7 +24,8 @@ class MyApp extends StatelessWidget {
       title: 'MyApp',
       initialRoute: '/',
       routes: {
-        '/': (ctx) => const AdminDashboardScreen(),
+        //'/': (ctx) => const AdminDashboardScreen(),
+        '/': (ctx) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (ctx) => const MainScreen(),
         '/catalog': (ctx) => CatalogScreen(),
