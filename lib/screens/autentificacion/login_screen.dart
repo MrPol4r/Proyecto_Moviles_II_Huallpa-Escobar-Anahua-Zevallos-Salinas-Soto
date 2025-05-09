@@ -42,7 +42,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success) {
       try {
         final uid = FirebaseAuth.instance.currentUser!.uid;
-        final userDoc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+        final userDoc =
+            await FirebaseFirestore.instance
+                .collection('usuarios')
+                .doc(uid)
+                .get();
 
         final roleInDB = userDoc.data()?['rol'];
 
@@ -54,7 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Esta cuenta pertenece a otro tipo de rol.')),
+            const SnackBar(
+              content: Text('Esta cuenta pertenece a otro tipo de rol.'),
+            ),
           );
         }
       } catch (e) {
@@ -81,37 +87,61 @@ class _LoginScreenState extends State<LoginScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  const Icon(Icons.storefront, size: 80, color: Colors.deepPurple),
+                  const Icon(
+                    Icons.store_mall_directory_rounded,
+                    size: 100,
+                    color: Color(0xFFD84315),
+                  ),
                   const SizedBox(height: 16),
                   const Text(
-                    "Bienvenido a Tienda Ropas",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    "Bienvenido a TrendyCart",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 32),
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Correo electrónico',
-                      prefixIcon: Icon(Icons.email),
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      hintText: 'Correo electrónico',
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Ingrese su correo' : null,
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Ingrese su correo'
+                                : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Contraseña',
-                      prefixIcon: Icon(Icons.lock),
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      hintText: 'Contraseña',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
-                    validator: (value) =>
-                        value != null && value.length < 6
-                            ? 'Mínimo 6 caracteres'
-                            : null,
+                    validator:
+                        (value) =>
+                            value != null && value.length < 6
+                                ? 'Mínimo 6 caracteres'
+                                : null,
                   ),
                   const SizedBox(height: 12),
                   Align(
@@ -120,26 +150,32 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.pushNamed(context, AppRoutes.resetPassword);
                       },
-                      child: const Text("¿Olvidaste tu contraseña?"),
+                      child: const Text(
+                        "¿Olvidaste tu contraseña?",
+                        style: TextStyle(color: Color(0xFFD84315)),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   _loading
                       ? const CircularProgressIndicator()
                       : SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _login,
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              backgroundColor: Colors.deepPurple,
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _login,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFD84315),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
                             ),
-                            child: const Text('Ingresar'),
+                          ),
+                          child: const Text(
+                            'Ingresar',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
+                      ),
                   const SizedBox(height: 24),
                   TextButton(
                     onPressed: () {
@@ -149,7 +185,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         arguments: _selectedRole,
                       );
                     },
-                    child: const Text("¿No tienes cuenta? Regístrate aquí"),
+                    child: const Text(
+                      "¿No tienes cuenta? Regístrate aquí",
+                      style: TextStyle(color: Color(0xFFD84315)),
+                    ),
                   ),
                 ],
               ),

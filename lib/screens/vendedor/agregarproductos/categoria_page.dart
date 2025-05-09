@@ -24,7 +24,7 @@ class CategoriaPage extends StatelessWidget {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Todas las categorías'),
+        title: const Text('Seleccionar categoría'),
       ),
       body: Column(
         children: [
@@ -34,7 +34,9 @@ class CategoriaPage extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Buscar categorías',
                 prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
               ),
             ),
           ),
@@ -45,9 +47,11 @@ class CategoriaPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(categorias[index]),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  trailing: const Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.grey,
+                  ),
                   onTap: () {
-                    // Aquí podrías usar Navigator.pop para devolver la categoría seleccionada
                     Navigator.pop(context, categorias[index]);
                   },
                 );

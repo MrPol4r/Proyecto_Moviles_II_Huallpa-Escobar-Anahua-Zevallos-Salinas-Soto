@@ -65,9 +65,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al registrarse')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Error al registrarse')));
     }
   }
 
@@ -75,92 +75,131 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(title: const Text("Crear cuenta")),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                TextFormField(
+                const Icon(
+                  Icons.person_add_alt_1,
+                  size: 90,
+                  color: Color(0xFFD84315),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "Crea tu cuenta en TrendyCart",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                _inputField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre completo',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) =>
-                      value!.isEmpty ? 'Ingrese su nombre' : null,
+                  hint: 'Nombre completo',
+                  icon: Icons.person,
+                  validator: (v) => v!.isEmpty ? 'Ingrese su nombre' : null,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                _inputField(
                   controller: _phoneController,
+                  hint: 'Teléfono',
+                  icon: Icons.phone,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'Teléfono',
-                    prefixIcon: Icon(Icons.phone),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) =>
-                      value!.length < 9 ? 'Número no válido' : null,
+                  validator: (v) => v!.length < 9 ? 'Número no válido' : null,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                _inputField(
                   controller: _emailController,
+                  hint: 'Correo electrónico',
+                  icon: Icons.email,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Correo electrónico',
-                    prefixIcon: Icon(Icons.email),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) =>
-                      value!.isEmpty ? 'Ingrese un correo válido' : null,
+                  validator:
+                      (v) => v!.isEmpty ? 'Ingrese un correo válido' : null,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                _inputField(
                   controller: _passwordController,
+                  hint: 'Contraseña',
+                  icon: Icons.lock,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Contraseña',
-                    prefixIcon: Icon(Icons.lock),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) =>
-                      value!.length < 6 ? 'Debe tener al menos 6 caracteres' : null,
+                  validator:
+                      (v) => v!.length < 6 ? 'Mínimo 6 caracteres' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   enabled: false,
-                  initialValue: _selectedRole != null
-                      ? _selectedRole![0].toUpperCase() + _selectedRole!.substring(1)
-                      : 'Cliente',
-                  decoration: const InputDecoration(
-                    labelText: 'Rol seleccionado',
-                    prefixIcon: Icon(Icons.account_circle),
-                    border: OutlineInputBorder(),
+                  initialValue:
+                      _selectedRole != null
+                          ? _selectedRole![0].toUpperCase() +
+                              _selectedRole!.substring(1)
+                          : 'Cliente',
+                  decoration: InputDecoration(
+                    hintText: 'Rol seleccionado',
+                    prefixIcon: const Icon(Icons.account_circle),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
                 _loading
                     ? const CircularProgressIndicator()
                     : SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _register,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            backgroundColor: Colors.deepPurple,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _register,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD84315),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Text('Registrarse'),
+                        ),
+                        child: const Text(
+                          'Registrarse',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ),
+                    ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _inputField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      validator: validator,
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(icon),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
       ),
     );

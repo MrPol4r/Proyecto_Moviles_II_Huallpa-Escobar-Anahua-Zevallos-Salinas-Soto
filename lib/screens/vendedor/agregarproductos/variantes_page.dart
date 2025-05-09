@@ -9,19 +9,58 @@ class Variante {
 }
 
 class VariantesPage extends StatefulWidget {
-  const VariantesPage({super.key});
+  const VariantesPage({super.key, required List variantes});
 
   @override
   State<VariantesPage> createState() => _VariantesPageState();
 }
 
 class _VariantesPageState extends State<VariantesPage> {
-  List<Variante> variantes = [
-    Variante(nombre: 'M / Rojo'),
-    Variante(nombre: 'L / Rojo'),
-    Variante(nombre: 'M / Verde'),
-    Variante(nombre: 'L / Verde'),
-  ];
+  List<Variante> variantes = [];
+  final TextEditingController nombreController = TextEditingController();
+
+  void _agregarVariante(String nombre) {
+    setState(() {
+      variantes.add(Variante(nombre: nombre));
+    });
+  }
+
+  void _mostrarDialogoAgregar() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Agregar Variante'),
+          content: TextField(
+            controller: nombreController,
+            decoration: const InputDecoration(
+              labelText: 'Nombre (ej: M / Rojo)',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                nombreController.clear();
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final nombre = nombreController.text.trim();
+                if (nombre.isNotEmpty) {
+                  _agregarVariante(nombre);
+                  Navigator.pop(context);
+                  nombreController.clear();
+                }
+              },
+              child: const Text('Agregar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,52 +74,54 @@ class _VariantesPageState extends State<VariantesPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              // TODO: Agregar nueva variante manualmente si lo deseas
-            },
+            onPressed: _mostrarDialogoAgregar,
           ),
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: () {
-              // TODO: Guardar variantes
               Navigator.pop(context);
             },
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: variantes.length,
-        itemBuilder: (context, index) {
-          final variante = variantes[index];
-          return ListTile(
-            leading: const Icon(Icons.image_outlined),
-            title: Text(variante.nombre),
-            subtitle: Text('PEN ${variante.precio.toStringAsFixed(2)}  •  Disponibles: ${variante.stock}'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.remove),
-                  onPressed: () {
-                    setState(() {
-                      if (variante.stock > 0) variante.stock--;
-                    });
-                  },
-                ),
-                Text('${variante.stock}'),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    setState(() {
-                      variante.stock++;
-                    });
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+      body:
+          variantes.isEmpty
+              ? const Center(child: Text('No hay variantes disponibles'))
+              : ListView.builder(
+                itemCount: variantes.length,
+                itemBuilder: (context, index) {
+                  final variante = variantes[index];
+                  return ListTile(
+                    leading: const Icon(Icons.image_outlined),
+                    title: Text(variante.nombre),
+                    subtitle: Text(
+                      'PEN ${variante.precio.toStringAsFixed(2)}  •  Disponibles: ${variante.stock}',
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: () {
+                            setState(() {
+                              if (variante.stock > 0) variante.stock--;
+                            });
+                          },
+                        ),
+                        Text('${variante.stock}'),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () {
+                            setState(() {
+                              variante.stock++;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
     );
   }
 }

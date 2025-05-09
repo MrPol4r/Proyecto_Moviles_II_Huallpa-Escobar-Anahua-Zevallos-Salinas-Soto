@@ -23,8 +23,6 @@ class _HomeSellerScreenState extends State<HomeSellerScreen> {
     const SellerMenuPage(),
     const SellerProfilePage(),
     const SellerAddProductPage(),
-
-    
   ];
 
   @override
@@ -34,14 +32,12 @@ class _HomeSellerScreenState extends State<HomeSellerScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: Colors.deepPurple,
+        selectedItemColor: const Color(0xFFD84315), // 🔸 naranja TrendyCart
         unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Inicio',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt_long),
             label: 'Pedidos',
@@ -50,10 +46,7 @@ class _HomeSellerScreenState extends State<HomeSellerScreen> {
             icon: Icon(Icons.shopping_bag),
             label: 'Productos',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: 'Menú',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Menú'),
         ],
       ),
     );

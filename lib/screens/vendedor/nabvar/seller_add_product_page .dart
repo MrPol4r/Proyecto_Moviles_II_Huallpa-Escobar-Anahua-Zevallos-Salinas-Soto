@@ -2,13 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:tienda_ropas/screens/vendedor/agregarproductos/canales_venta_page.dart';
 import 'package:tienda_ropas/screens/vendedor/agregarproductos/categoria_page.dart';
-import 'package:tienda_ropas/screens/vendedor/agregarproductos/descripcion_page.dart' show ProductDescriptionPage;
+import 'package:tienda_ropas/screens/vendedor/agregarproductos/descripcion_page.dart'
+    show ProductDescriptionPage;
 import 'package:tienda_ropas/screens/vendedor/agregarproductos/inventario_page.dart';
 import 'package:tienda_ropas/screens/vendedor/agregarproductos/precio_page.dart';
 import 'package:tienda_ropas/screens/vendedor/agregarproductos/variantes_page.dart';
 
-class SellerAddProductPage extends StatelessWidget {
+class SellerAddProductPage extends StatefulWidget {
   const SellerAddProductPage({super.key});
+
+  @override
+  State<SellerAddProductPage> createState() => _SellerAddProductPageState();
+}
+
+class _SellerAddProductPageState extends State<SellerAddProductPage> {
+  String? _descripcion;
+  String? _categoria;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +36,7 @@ class SellerAddProductPage extends StatelessWidget {
             onPressed: () {
               // TODO: Guardar producto
             },
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -35,8 +44,10 @@ class SellerAddProductPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Multimedia
-            const Text('Multimedia', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Multimedia',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             DottedBorder(
               borderType: BorderType.RRect,
@@ -52,7 +63,10 @@ class SellerAddProductPage extends StatelessWidget {
                   children: const [
                     Icon(Icons.image, size: 40, color: Colors.blue),
                     SizedBox(height: 6),
-                    Text('Agregar imágenes', style: TextStyle(color: Colors.blue)),
+                    Text(
+                      'Agregar imágenes',
+                      style: TextStyle(color: Colors.blue),
+                    ),
                     SizedBox(height: 4),
                     Text(
                       'Elige un plan para agregar más tipos de elementos multimedia',
@@ -65,7 +79,6 @@ class SellerAddProductPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Nombre del producto
             TextFormField(
               decoration: const InputDecoration(
                 labelText: 'Nombre del producto',
@@ -74,21 +87,41 @@ class SellerAddProductPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Descripción y categoría
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.add),
-              title: const Text('Agregar descripción'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductDescriptionPage()));
+              title: Text(_descripcion ?? 'Agregar descripción'),
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => ProductDescriptionPage(
+                          initialDescription: _descripcion,
+                        ),
+                  ),
+                );
+                if (result != null) {
+                  setState(() {
+                    _descripcion = result;
+                  });
+                }
               },
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.add),
-              title: const Text('Seleccionar categoría'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoriaPage()));
+              title: Text(_categoria ?? 'Seleccionar categoría'),
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CategoriaPage()),
+                );
+                if (result != null) {
+                  setState(() {
+                    _categoria = result;
+                  });
+                }
               },
             ),
 
@@ -97,43 +130,66 @@ class SellerAddProductPage extends StatelessWidget {
               leading: const Icon(Icons.attach_money),
               title: const Text('Poner precio'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const PrecioPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PrecioPage()),
+                );
               },
             ),
 
             const SizedBox(height: 24),
 
-            // Canales de venta
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Canales de ventas', style: TextStyle(fontWeight: FontWeight.bold)),
-              trailing: const Text('Editar', style: TextStyle(color: Colors.blue)),
+              title: const Text(
+                'Canales de ventas',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              trailing: const Text(
+                'Editar',
+                style: TextStyle(color: Colors.blue),
+              ),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CanalesVentaPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CanalesVentaPage()),
+                );
               },
             ),
             const Text('Tienda online, Point of Sale'),
             const Divider(height: 32),
 
-            // Variantes
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.add),
               title: const Text('Agregar opciones (color, talla, etc.)'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const VariantesPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const VariantesPage(variantes: []),
+                  ),
+                );
               },
             ),
 
             const SizedBox(height: 24),
 
-            // Inventario
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Inventario', style: TextStyle(fontWeight: FontWeight.bold)),
-              trailing: const Text('Editar', style: TextStyle(color: Colors.blue)),
+              title: const Text(
+                'Inventario',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              trailing: const Text(
+                'Editar',
+                style: TextStyle(color: Colors.blue),
+              ),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const InventarioPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const InventarioPage()),
+                );
               },
             ),
             const SizedBox(height: 8),
@@ -149,7 +205,6 @@ class SellerAddProductPage extends StatelessWidget {
             ),
             const Divider(height: 32),
 
-            // Más detalles
             const ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text('Envío'),
