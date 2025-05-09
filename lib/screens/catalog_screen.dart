@@ -12,6 +12,17 @@ class CatalogScreen extends StatefulWidget {
 
 class _CatalogScreenState extends State<CatalogScreen> {
   late Future<List<Product>> _productosFuture;
+  List<Product> _allProducts = [];
+  List<Product> _filteredProducts = [];
+  String _searchText = '';
+  String _selectedCategory = 'Todos';
+
+  final List<String> _categorias = [
+    'Todos',
+    'Ropa',
+    'Tecnología',
+    'Hogar',
+  ]; // Personaliza según tus datos
 
   @override
   void initState() {
@@ -22,33 +33,104 @@ class _CatalogScreenState extends State<CatalogScreen> {
   Future<List<Product>> _loadProducts() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('producto').get();
-    return snapshot.docs
-        .map((doc) => Product.fromMap(doc.id, doc.data()))
-        .toList();
+    final productos =
+        snapshot.docs
+            .map((doc) => Product.fromMap(doc.id, doc.data()))
+            .toList();
+    setState(() {
+      _allProducts = productos;
+      _filteredProducts = productos;
+    });
+    return productos;
+  }
+
+  void _filterProducts() {
+    setState(() {
+      _filteredProducts =
+          _allProducts.where((p) {
+            final matchesText = p.nombre.toLowerCase().contains(
+              _searchText.toLowerCase(),
+            );
+            final matchesCategory =
+                _selectedCategory == 'Todos' ||
+                p.categoria == _selectedCategory;
+            return matchesText && matchesCategory;
+          }).toList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Catálogo')),
-      body: FutureBuilder<List<Product>>(
-        future: _productosFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          final products = snapshot.data ?? [];
-          if (products.isEmpty) {
-            return const Center(child: Text('No hay productos disponibles.'));
-          }
-          return ListView.builder(
-            itemCount: products.length,
-            itemBuilder: (ctx, i) => _buildProductCard(context, products[i]),
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            // 🔍 Campo de búsqueda
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Buscar producto',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                _searchText = value;
+                _filterProducts();
+              },
+            ),
+            const SizedBox(height: 10),
+
+            // 🗂️ Dropdown de categorías
+            DropdownButtonFormField<String>(
+              value: _selectedCategory,
+              items:
+                  _categorias.map((categoria) {
+                    return DropdownMenuItem(
+                      value: categoria,
+                      child: Text(categoria),
+                    );
+                  }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  _selectedCategory = value;
+                  _filterProducts();
+                }
+              },
+              decoration: const InputDecoration(
+                labelText: 'Categoría',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // 📦 Lista de productos filtrados
+            Expanded(
+              child: FutureBuilder<List<Product>>(
+                future: _productosFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (_filteredProducts.isEmpty) {
+                    return const Center(
+                      child: Text('No hay productos disponibles.'),
+                    );
+                  }
+                  return ListView.builder(
+                    itemCount: _filteredProducts.length,
+                    itemBuilder:
+                        (ctx, i) =>
+                            _buildProductCard(context, _filteredProducts[i]),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -57,16 +139,33 @@ class _CatalogScreenState extends State<CatalogScreen> {
     final precioConDescuento = product.precio * (1 - product.descuento / 100);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       elevation: 3,
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
-        leading: Image.asset(
-          product.imagenes.isNotEmpty
-              ? product.imagenes[0]
-              : 'assets/images/placeholder.png',
-          width: 60,
-          fit: BoxFit.cover,
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(8), // Bordes redondeados
+          child:
+              product.imagenes.isNotEmpty
+                  ? Image.network(
+                    product.imagenes[0],
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => Image.asset(
+                          'assets/images/placeholder.png',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
+                  )
+                  : Image.asset(
+                    'assets/images/placeholder.png',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
         ),
         title: Text(
           product.nombre,
