@@ -60,15 +60,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               height: 250,
               child: PageView.builder(
                 itemCount: product.imagenes.length,
-                itemBuilder:
-                    (context, index) => ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.asset(
-                        product.imagenes[index],
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                      ),
-                    ),
+                itemBuilder: (context, index) {
+                  return Image.network(
+                    product.imagenes[index],
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    errorBuilder:
+                        (context, error, stackTrace) => Image.asset(
+                          'assets/images/placeholder.png',
+                          fit: BoxFit.cover,
+                        ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 16),

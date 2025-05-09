@@ -17,7 +17,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
   String _searchText = '';
   String _selectedCategory = 'Todos';
 
-  final List<String> _categorias = ['Todos', 'Ropa', 'Tecnología', 'Hogar']; // Personaliza según tus datos
+  final List<String> _categorias = [
+    'Todos',
+    'Ropa',
+    'Tecnología',
+    'Hogar',
+  ]; // Personaliza según tus datos
 
   @override
   void initState() {
@@ -28,9 +33,10 @@ class _CatalogScreenState extends State<CatalogScreen> {
   Future<List<Product>> _loadProducts() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('producto').get();
-    final productos = snapshot.docs
-        .map((doc) => Product.fromMap(doc.id, doc.data()))
-        .toList();
+    final productos =
+        snapshot.docs
+            .map((doc) => Product.fromMap(doc.id, doc.data()))
+            .toList();
     setState(() {
       _allProducts = productos;
       _filteredProducts = productos;
@@ -40,12 +46,16 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   void _filterProducts() {
     setState(() {
-      _filteredProducts = _allProducts.where((p) {
-        final matchesText = p.nombre.toLowerCase().contains(_searchText.toLowerCase());
-        final matchesCategory =
-            _selectedCategory == 'Todos' || p.categoria == _selectedCategory;
-        return matchesText && matchesCategory;
-      }).toList();
+      _filteredProducts =
+          _allProducts.where((p) {
+            final matchesText = p.nombre.toLowerCase().contains(
+              _searchText.toLowerCase(),
+            );
+            final matchesCategory =
+                _selectedCategory == 'Todos' ||
+                p.categoria == _selectedCategory;
+            return matchesText && matchesCategory;
+          }).toList();
     });
   }
 
@@ -74,12 +84,13 @@ class _CatalogScreenState extends State<CatalogScreen> {
             // 🗂️ Dropdown de categorías
             DropdownButtonFormField<String>(
               value: _selectedCategory,
-              items: _categorias.map((categoria) {
-                return DropdownMenuItem(
-                  value: categoria,
-                  child: Text(categoria),
-                );
-              }).toList(),
+              items:
+                  _categorias.map((categoria) {
+                    return DropdownMenuItem(
+                      value: categoria,
+                      child: Text(categoria),
+                    );
+                  }).toList(),
               onChanged: (value) {
                 if (value != null) {
                   _selectedCategory = value;
@@ -105,12 +116,15 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   }
                   if (_filteredProducts.isEmpty) {
-                    return const Center(child: Text('No hay productos disponibles.'));
+                    return const Center(
+                      child: Text('No hay productos disponibles.'),
+                    );
                   }
                   return ListView.builder(
                     itemCount: _filteredProducts.length,
-                    itemBuilder: (ctx, i) =>
-                        _buildProductCard(context, _filteredProducts[i]),
+                    itemBuilder:
+                        (ctx, i) =>
+                            _buildProductCard(context, _filteredProducts[i]),
                   );
                 },
               ),
@@ -129,12 +143,29 @@ class _CatalogScreenState extends State<CatalogScreen> {
       elevation: 3,
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
-        leading: Image.asset(
-          product.imagenes.isNotEmpty
-              ? product.imagenes[0]
-              : 'assets/images/placeholder.png',
-          width: 60,
-          fit: BoxFit.cover,
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(8), // Bordes redondeados
+          child:
+              product.imagenes.isNotEmpty
+                  ? Image.network(
+                    product.imagenes[0],
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => Image.asset(
+                          'assets/images/placeholder.png',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
+                  )
+                  : Image.asset(
+                    'assets/images/placeholder.png',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
         ),
         title: Text(
           product.nombre,

@@ -12,6 +12,8 @@ class Product {
   final List<String> tallas;
   final String descripcionTallas;
   final List<Map<String, dynamic>> comentarios;
+  final String estado;
+  final int stock;
   //polar
   final String categoria;
 
@@ -29,8 +31,9 @@ class Product {
     required this.tallas,
     required this.descripcionTallas,
     required this.comentarios,
-    //polar
     required this.categoria,
+    required this.estado,
+    required this.stock,
   });
 
   factory Product.fromMap(String id, Map<String, dynamic> data) {
@@ -50,6 +53,27 @@ class Product {
       comentarios: List<Map<String, dynamic>>.from(data['comentarios'] ?? []),
       //polar
       categoria: data['categoria'] ?? 'Sin categoría',
+      estado: data['estado'] ?? 'disponible',
+      stock: data['stock'] ?? 0,
     );
+  }
+  Map<String, dynamic> toMap() {
+    return {
+      'nombre': nombre,
+      'precio': precio,
+      'descuento': descuento,
+      'descripcion': descripcion,
+      'valoracion': valoracion,
+      'valoraciones_total': valoracionesTotal,
+      'vendidos': vendidos,
+      'imagenes': imagenes,
+      'colores': colores,
+      'tallas': tallas,
+      'descripcion_tallas': descripcionTallas,
+      'comentarios': comentarios,
+      'categoria': categoria,
+      'estado': estado,
+      'stock': stock,
+    };
   }
 }
