@@ -1,23 +1,31 @@
 class AppRoutes {
-  // Ruta inicial de la app
+    static const splash = '/';
+
+  // Pantalla inicial (Login)
   static const login = '/';
 
-  // Ruta al home luego de iniciar sesión
-  static const home = '/home';
+  // Selector de rol (antes de registro)
+  static const roleSelector = '/role-selector';
 
-  // Ruta al registro (si la implementas)
+  // Registro de usuario
   static const register = '/register';
 
-  // Ruta para detalle de producto
+  // Recuperación de contraseña
+  static const resetPassword = '/reset-password';
+
+  // Pantallas principales según el rol
+  static const clientHome = '/client-home';
+  static const sellerHome = '/seller-home';
+
+  // Funcionalidades compartidas
   static const productDetail = '/product-detail';
-
-  // Ruta para carrito de compras
   static const cart = '/cart';
-
-  // Ruta para perfil de usuario
   static const profile = '/profile';
 
-  
-  static const resetPassword = '/reset-password'; 
+  // Si decides usarlo como genérico
+   //  static const home = '/home';
+
+
+   static const sellerAddProduct = '/seller-add-product';
 
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
-import '../routes/app_routes.dart';
+import '../../services/auth_service.dart';
+import '../../routes/app_routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -20,6 +20,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneController = TextEditingController();
 
   bool _loading = false;
+  String? _selectedRole;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is String) _selectedRole = args;
+  }
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
@@ -42,10 +50,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'nombre': _nameController.text.trim(),
           'telefono': _phoneController.text.trim(),
           'correo': _emailController.text.trim(),
+          'rol': _selectedRole ?? 'cliente',
           'createdAt': FieldValue.serverTimestamp(),
         });
 
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        if (_selectedRole == 'vendedor') {
+          Navigator.pushReplacementNamed(context, AppRoutes.sellerHome);
+        } else {
+          Navigator.pushReplacementNamed(context, AppRoutes.clientHome);
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al guardar en Firestore: $e')),
@@ -113,9 +126,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     prefixIcon: Icon(Icons.lock),
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => value!.length < 6
-                      ? 'Debe tener al menos 6 caracteres'
-                      : null,
+                  validator: (value) =>
+                      value!.length < 6 ? 'Debe tener al menos 6 caracteres' : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  enabled: false,
+                  initialValue: _selectedRole != null
+                      ? _selectedRole![0].toUpperCase() + _selectedRole!.substring(1)
+                      : 'Cliente',
+                  decoration: const InputDecoration(
+                    labelText: 'Rol seleccionado',
+                    prefixIcon: Icon(Icons.account_circle),
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 32),
                 _loading
@@ -125,8 +149,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: ElevatedButton(
                           onPressed: _register,
                           style: ElevatedButton.styleFrom(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
