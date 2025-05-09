@@ -6,28 +6,11 @@ Aplicación móvil desarrollada con **Flutter** para una tienda de ropa. Permite
 
 ## 🚀 Características principales
 
-- Registro de usuarios
-- Inicio de sesión con Firebase Authentication
-- Recuperación de contraseña
-- Interfaz intuitiva y moderna
+
+- Ver Lista de favoritos
 
 ---
 
-## 📸 Capturas de Pantalla
-
-### 🔐 Registro de Cuenta
-![Firebase](https://github.com/user-attachments/assets/23babede-b2ed-4f09-901b-fca105ff01a1)
-
-![Registro](https://github.com/user-attachments/assets/ad3948d7-264a-44c8-9e85-12387b527bee)
-
-### 🔓 Login
-![Login](https://github.com/user-attachments/assets/17173e34-803c-45dd-8887-b29ce757b262)
-
-### ❓ Recuperar Contraseña
-![Olvidar Contraseña](https://github.com/user-attachments/assets/cb45382c-0838-47e6-a4a0-dfdc4202445d)
-
-### 🖼️ Vista Adicional
-![Vista extra](https://github.com/user-attachments/assets/19515038-133c-4eb1-8cc6-f12aaf499ae1)
 
 ---
 
