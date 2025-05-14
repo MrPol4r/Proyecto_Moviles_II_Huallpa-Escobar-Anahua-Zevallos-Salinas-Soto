@@ -15,10 +15,11 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      //throw UnsupportedError(
+      //  'DefaultFirebaseOptions have not been configured for web - '
+      //  'you can reconfigure this by running the FlutterFire CLI again.',
+      //);
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -57,4 +58,37 @@ class DefaultFirebaseOptions {
     projectId: 'movilesii-ffaab',
     storageBucket: 'movilesii-ffaab.firebasestorage.app',
   );
+
+  // Import the functions you need from the SDKs you need
+  // import { initializeApp } from "firebase/app";
+  // import { getAnalytics } from "firebase/analytics";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyD39OnpnlHTJXgvXZlPrSKKcAfCtEGHxJA',
+    authDomain: 'movilesii-ffaab.firebaseapp.com',
+    projectId: 'movilesii-ffaab',
+    storageBucket: 'movilesii-ffaab.firebasestorage.app',
+    messagingSenderId: '1070536871755',
+    appId: '1:1070536871755:web:bb7967f98c3cbe9d01a2ce',
+    measurementId: 'G-B4H19G0B9R',
+
+    /*
+  apiKey: "AIzaSyD39OnpnlHTJXgvXZlPrSKKcAfCtEGHxJA",
+  authDomain: "movilesii-ffaab.firebaseapp.com",
+  projectId: "movilesii-ffaab",
+  storageBucket: "movilesii-ffaab.firebasestorage.app",
+  messagingSenderId: "1070536871755",
+  appId: "1:1070536871755:web:bb7967f98c3cbe9d01a2ce",
+  measurementId: "G-B4H19G0B9R"
+    
+    */
+  );
+
+  // Initialize Firebase
+  // const app = initializeApp(firebaseConfig);
+  // const analytics = getAnalytics(app);
 }
