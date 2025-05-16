@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+//
+import '../services/favorites_service.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -11,13 +13,16 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  late bool isFavorite;
+  /*late bool isFavorite;
 
   @override
   void initState() {
     super.initState();
     isFavorite = false; // Simulado
   }
+  */
+  bool get isFavorite =>
+      FavoritesService.favorites.value.contains(widget.product.id);
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +36,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           IconButton(
             icon: Icon(
               isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: isFavorite ? Colors.red : Colors.white,
+              color: isFavorite ? Colors.black : Colors.white,
             ),
-            onPressed: () {
-              setState(() {
-                isFavorite = !isFavorite;
-              });
+            onPressed: () async {
+              await FavoritesService.toggleFavorite(widget.product.id);
+              setState(() {}); // para refrescar el ícono
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
                     isFavorite
-                        ? 'Agregado a favoritos (simulado)'
-                        : 'Removido de favoritos (simulado)',
+                        ? 'Producto agregado a favoritos'
+                        : 'Producto removido de favoritos',
                   ),
                 ),
               );

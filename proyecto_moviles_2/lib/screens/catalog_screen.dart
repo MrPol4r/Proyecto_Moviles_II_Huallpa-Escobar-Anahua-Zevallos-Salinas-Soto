@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 import 'product_detail_screen.dart';
+//
+import '../services/favorites_service.dart';
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -28,6 +30,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
   void initState() {
     super.initState();
     _productosFuture = _loadProducts();
+    FavoritesService.loadFavorites(); // <-- FAVORITOS
   }
 
   Future<List<Product>> _loadProducts() async {
@@ -195,18 +198,49 @@ class _CatalogScreenState extends State<CatalogScreen> {
             ),
           ],
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.shopping_cart),
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Producto "${product.nombre}" agregado al carrito (simulado)',
-                ),
-              ),
-            );
-          },
+        trailing: Column(
+          mainAxisSize: MainAxisSize.min, // <--- Cambiar aquí
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ValueListenableBuilder<Set<String>>(
+              valueListenable: FavoritesService.favorites,
+              builder: (context, favs, _) {
+                final isFav = favs.contains(product.id);
+                return IconButton(
+                  icon: Icon(
+                    isFav ? Icons.favorite : Icons.favorite_border,
+                    color: isFav ? Colors.black : null,
+                  ),
+                  onPressed: () async {
+                    await FavoritesService.toggleFavorite(product.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isFav
+                              ? 'Producto eliminado de favoritos'
+                              : 'Producto agregado a favoritos',
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.shopping_cart),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Producto "${product.nombre}" agregado al carrito (simulado)',
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
+
         onTap: () {
           Navigator.push(
             context,

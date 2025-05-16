@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../screens/product_detail_screen.dart';
+//
+import '../services/favorites_service.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -69,13 +71,44 @@ class ProductCard extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.shopping_cart),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Producto agregado al carrito')),
-                  );
-                },
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ValueListenableBuilder<Set<String>>(
+                    valueListenable: FavoritesService.favorites,
+                    builder: (context, favs, _) {
+                      final isFav = favs.contains(product.id);
+                      return IconButton(
+                        icon: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.black : null,
+                        ),
+                        onPressed: () async {
+                          await FavoritesService.toggleFavorite(product.id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                isFav
+                                    ? 'Producto eliminado de favoritos'
+                                    : 'Producto agregado a favoritos',
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.shopping_cart),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Producto agregado al carrito'),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
