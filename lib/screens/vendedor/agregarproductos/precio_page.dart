@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
 
 class PrecioPage extends StatefulWidget {
-  const PrecioPage({super.key});
+  final String? initialPrecio;
+  final String? initialComparacion;
+  final String? initialCosto;
+  final bool? initialCobrarImpuestos;
+
+  const PrecioPage({
+    super.key,
+    this.initialPrecio,
+    this.initialComparacion,
+    this.initialCosto,
+    this.initialCobrarImpuestos,
+  });
 
   @override
   State<PrecioPage> createState() => _PrecioPageState();
 }
 
 class _PrecioPageState extends State<PrecioPage> {
-  final TextEditingController _precioController = TextEditingController();
-  final TextEditingController _comparacionController = TextEditingController();
-  final TextEditingController _costoController = TextEditingController();
+  late TextEditingController _precioController;
+  late TextEditingController _comparacionController;
+  late TextEditingController _costoController;
 
   double margen = 0;
   double ganancia = 0;
@@ -29,8 +40,16 @@ class _PrecioPageState extends State<PrecioPage> {
   @override
   void initState() {
     super.initState();
+
+    _precioController = TextEditingController(text: widget.initialPrecio ?? '');
+    _comparacionController = TextEditingController(text: widget.initialComparacion ?? '');
+    _costoController = TextEditingController(text: widget.initialCosto ?? '');
+    cobrarImpuestos = widget.initialCobrarImpuestos ?? true;
+
     _precioController.addListener(_calcularMargenYGanancia);
     _costoController.addListener(_calcularMargenYGanancia);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _calcularMargenYGanancia());
   }
 
   @override
@@ -39,6 +58,17 @@ class _PrecioPageState extends State<PrecioPage> {
     _comparacionController.dispose();
     _costoController.dispose();
     super.dispose();
+  }
+
+  void _guardar() {
+    Navigator.pop(context, {
+      'precio': _precioController.text,
+      'comparacion': _comparacionController.text,
+      'costo': _costoController.text,
+      'margen': margen,
+      'ganancia': ganancia,
+      'cobrarImpuestos': cobrarImpuestos,
+    });
   }
 
   @override
@@ -53,10 +83,7 @@ class _PrecioPageState extends State<PrecioPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: () {
-              // TODO: Guardar datos o retornar valores si se desea
-              Navigator.pop(context);
-            },
+            onPressed: _guardar,
           )
         ],
       ),
