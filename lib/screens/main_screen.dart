@@ -3,6 +3,7 @@ import 'catalog_screen.dart'; // ya lo tienes
 import 'profile_screen.dart'; // crearás este
 import 'favorites_screen.dart'; // crearás este
 import 'cart_screen.dart'; // crearás este
+import 'category_screen.dart'; // 👈 Asegúrate de importar esta
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,6 +18,7 @@ class _MainScreenState extends State<MainScreen> {
   // Estas son las pantallas que se mostrarán
   final List<Widget> _pantallas = [
     const CatalogScreen(),
+    const CategoryScreen(), // 👈 Tu nueva pantalla de categorías
     const ProfileScreen(),
     const FavoritesScreen(),
     const CartScreen(),
@@ -40,6 +42,10 @@ class _MainScreenState extends State<MainScreen> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Inicio'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category),
+            label: 'Categorías',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 import 'product_detail_screen.dart';
-import 'chat_screen.dart'; // 👈 Agrega esto al inicio
+import 'chat_screen.dart';
 
 class CatalogScreen extends StatefulWidget {
-  const CatalogScreen({super.key});
+  final String? categoriaPreseleccionada;
+  const CatalogScreen({super.key, this.categoriaPreseleccionada});
 
   @override
   State<CatalogScreen> createState() => _CatalogScreenState();
@@ -18,16 +19,10 @@ class _CatalogScreenState extends State<CatalogScreen> {
   String _searchText = '';
   String _selectedCategory = 'Todos';
 
-  final List<String> _categorias = [
-    'Todos',
-    'Ropa',
-    'Tecnología',
-    'Hogar',
-  ]; // Personaliza según tus datos
-
   @override
   void initState() {
     super.initState();
+    _selectedCategory = widget.categoriaPreseleccionada ?? 'Todos';
     _productosFuture = _loadProducts();
   }
 
@@ -42,16 +37,13 @@ class _CatalogScreenState extends State<CatalogScreen> {
         snapshot.docs
             .map((doc) => Product.fromMap(doc.id, doc.data()))
             .toList();
-    setState(() {
-      _allProducts = productos;
-      _filteredProducts = productos;
-    });
+    setState(() => _allProducts = productos);
+    _filterProducts();
     return productos;
   }
 
   void _filterProducts() {
     final texto = _searchText.toLowerCase();
-
     setState(() {
       _filteredProducts =
           _allProducts.where((p) {
@@ -72,44 +64,18 @@ class _CatalogScreenState extends State<CatalogScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            // 🔍 Campo de búsqueda
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Buscar producto',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) {
-                _searchText = value;
+              onChanged: (v) {
+                _searchText = v;
                 _filterProducts();
               },
             ),
             const SizedBox(height: 10),
-
-            // 🗂️ Dropdown de categorías
-            DropdownButtonFormField<String>(
-              value: _selectedCategory,
-              items:
-                  _categorias.map((categoria) {
-                    return DropdownMenuItem(
-                      value: categoria,
-                      child: Text(categoria),
-                    );
-                  }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  _selectedCategory = value;
-                  _filterProducts();
-                }
-              },
-              decoration: const InputDecoration(
-                labelText: 'Categoría',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // 📦 Lista de productos filtrados
             Expanded(
               child: FutureBuilder<List<Product>>(
                 future: _productosFuture,
@@ -118,7 +84,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(child: Text('Error: \${snapshot.error}'));
                   }
                   if (_filteredProducts.isEmpty) {
                     return const Center(
@@ -137,7 +103,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
           ],
         ),
       ),
-      // 👇 Este es el botón flotante del chatbot
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -161,7 +126,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
         leading: ClipRRect(
-          borderRadius: BorderRadius.circular(8), // Bordes redondeados
+          borderRadius: BorderRadius.circular(8),
           child:
               product.imagenes.isNotEmpty
                   ? Image.network(
