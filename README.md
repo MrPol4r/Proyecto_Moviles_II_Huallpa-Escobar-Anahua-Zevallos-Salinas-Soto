@@ -15,7 +15,7 @@ Aplicación móvil desarrollada con **Flutter** para una tienda de ropa. Permite
 
 ## 📸 Capturas de Pantalla
 
-### 🧩 Interfaz de Inicio
+### 🧩 SE GUARDA LAS FOTOS AQUI cloudinary
 ![Inicio](https://github.com/user-attachments/assets/ce30434d-caf1-4ed2-9f19-b3e1bb1c9d50)
 
 ### 🔐 Registro de Cuenta
