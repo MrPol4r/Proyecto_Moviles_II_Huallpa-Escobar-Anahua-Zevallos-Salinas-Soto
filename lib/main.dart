@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (ctx) => const LoginScreen(),
+        '/login': (ctx) => const LoginScreen(), // 👈 Agregada
         '/register': (context) => const RegisterScreen(),
         '/home': (ctx) => const MainScreen(),
         '/catalog': (ctx) => CatalogScreen(),

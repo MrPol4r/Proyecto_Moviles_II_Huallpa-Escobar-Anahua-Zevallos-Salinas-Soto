@@ -35,6 +35,35 @@ class _ProductListScreenState extends State<ProductListScreen> {
     setState(() => productos = productosCargados);
   }
 
+  void _confirmarEliminacion(Product producto) {
+    showDialog(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Confirmar eliminación'),
+            content: Text(
+              '¿Estás seguro de que deseas eliminar "${producto.nombre}"?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(ctx).pop();
+                  _eliminarProducto(producto);
+                },
+                child: const Text(
+                  'Eliminar',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
   void _eliminarProducto(Product producto) async {
     await FirebaseFirestore.instance
         .collection('producto')
@@ -113,7 +142,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete),
-                          onPressed: () => _eliminarProducto(p),
+                          onPressed: () => _confirmarEliminacion(p),
                         ),
                       ],
                     ),

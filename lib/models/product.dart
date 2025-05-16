@@ -9,12 +9,12 @@ class Product {
   final int vendidos;
   final List<String> imagenes; // máx. 7 imágenes locales
   final List<String> colores;
+  final Map<String, String> colorImagenes; // ← nuevo campo
   final List<String> tallas;
   final String descripcionTallas;
   final List<Map<String, dynamic>> comentarios;
   final String estado;
   final int stock;
-  //polar
   final String categoria;
 
   Product({
@@ -28,6 +28,7 @@ class Product {
     required this.vendidos,
     required this.imagenes,
     required this.colores,
+    required this.colorImagenes, // ← nuevo campo en constructor
     required this.tallas,
     required this.descripcionTallas,
     required this.comentarios,
@@ -48,15 +49,18 @@ class Product {
       vendidos: data['vendidos'] ?? 0,
       imagenes: List<String>.from(data['imagenes'] ?? []),
       colores: List<String>.from(data['colores'] ?? []),
+      colorImagenes: Map<String, String>.from(
+        data['colorImagenes'] ?? {},
+      ), // ← mapea correctamente
       tallas: List<String>.from(data['tallas'] ?? []),
       descripcionTallas: data['descripcion_tallas'] ?? '',
       comentarios: List<Map<String, dynamic>>.from(data['comentarios'] ?? []),
-      //polar
       categoria: data['categoria'] ?? 'Sin categoría',
       estado: data['estado'] ?? 'disponible',
       stock: data['stock'] ?? 0,
     );
   }
+
   Map<String, dynamic> toMap() {
     return {
       'nombre': nombre,
@@ -68,6 +72,7 @@ class Product {
       'vendidos': vendidos,
       'imagenes': imagenes,
       'colores': colores,
+      'colorImagenes': colorImagenes, // ← exporta correctamente
       'tallas': tallas,
       'descripcion_tallas': descripcionTallas,
       'comentarios': comentarios,
