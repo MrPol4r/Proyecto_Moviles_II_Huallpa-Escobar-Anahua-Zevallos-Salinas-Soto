@@ -12,11 +12,38 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   late bool isFavorite;
+  final _comentarioCtrl = TextEditingController();
+  int _valoracionNueva = 0;
 
   @override
   void initState() {
     super.initState();
     isFavorite = false; // Simulado
+  }
+
+  void _agregarComentario() {
+    if (_comentarioCtrl.text.trim().isEmpty || _valoracionNueva == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Escribe un comentario y selecciona una valoración.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      widget.product.comentarios.add({
+        'usuario': 'Usuario Demo',
+        'valoracion': _valoracionNueva,
+        'comentario': _comentarioCtrl.text.trim(),
+      });
+      _comentarioCtrl.clear();
+      _valoracionNueva = 0;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Comentario agregado exitosamente.')),
+    );
   }
 
   @override
@@ -66,10 +93,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     fit: BoxFit.cover,
                     width: double.infinity,
                     errorBuilder:
-                        (context, error, stackTrace) => Image.asset(
-                          'assets/images/placeholder.png',
-                          fit: BoxFit.cover,
-                        ),
+                        (context, error, stackTrace) =>
+                            Image.asset('assets/images/placeholder.png'),
                   );
                 },
               ),
@@ -154,6 +179,51 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
+
+            // Campo para escribir comentario
+            const Text(
+              'Tu valoración:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Row(
+              children: List.generate(
+                5,
+                (i) => IconButton(
+                  icon: Icon(
+                    i < _valoracionNueva ? Icons.star : Icons.star_border,
+                    color: Colors.amber,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _valoracionNueva = i + 1;
+                    });
+                  },
+                ),
+              ),
+            ),
+            TextField(
+              controller: _comentarioCtrl,
+              decoration: const InputDecoration(
+                hintText: 'Escribe tu comentario...',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _agregarComentario,
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+                child: const Text(
+                  'Enviar comentario',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Comentarios existentes
             if (product.comentarios.isEmpty)
               const Text('Aún no hay comentarios.')
             else
