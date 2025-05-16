@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 import 'product_detail_screen.dart';
+import 'dudasproductos.dart'; // 👈 Asegúrate de que el archivo existe
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -17,12 +18,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
   String _searchText = '';
   String _selectedCategory = 'Todos';
 
-  final List<String> _categorias = [
-    'Todos',
-    'Ropa',
-    'Tecnología',
-    'Hogar',
-  ]; // Personaliza según tus datos
+  final List<String> _categorias = ['Todos', 'Ropa', 'Tecnología', 'Hogar'];
 
   @override
   void initState() {
@@ -62,12 +58,25 @@ class _CatalogScreenState extends State<CatalogScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Catálogo')),
+      appBar: AppBar(
+        title: const Text('Catálogo'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: '¿Tienes dudas?',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const DudasProductos()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            // 🔍 Campo de búsqueda
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Buscar producto',
@@ -80,8 +89,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
               },
             ),
             const SizedBox(height: 10),
-
-            // 🗂️ Dropdown de categorías
             DropdownButtonFormField<String>(
               value: _selectedCategory,
               items:
@@ -103,8 +110,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
               ),
             ),
             const SizedBox(height: 12),
-
-            // 📦 Lista de productos filtrados
             Expanded(
               child: FutureBuilder<List<Product>>(
                 future: _productosFuture,
@@ -144,7 +149,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
         leading: ClipRRect(
-          borderRadius: BorderRadius.circular(8), // Bordes redondeados
+          borderRadius: BorderRadius.circular(8),
           child:
               product.imagenes.isNotEmpty
                   ? Image.network(
