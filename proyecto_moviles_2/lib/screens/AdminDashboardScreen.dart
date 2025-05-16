@@ -1,14 +1,50 @@
 import 'package:flutter/material.dart';
 import 'productlistscreen.dart'; // donde está el CRUD de productos
 import 'UserListScreen.dart';
+import '../services/auth_service.dart'; // importa tu AuthService
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
 
+  void _cerrarSesion(BuildContext context) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Cerrar sesión'),
+            content: const Text('¿Estás seguro que deseas cerrar sesión?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Cerrar sesión'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmar == true) {
+      AuthService.logout();
+      Navigator.pushReplacementNamed(context, '/');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Panel del Administrador')),
+      appBar: AppBar(
+        title: const Text('Panel del Administrador'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
+            onPressed: () => _cerrarSesion(context),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView(
@@ -40,9 +76,6 @@ class AdminDashboardScreen extends StatelessWidget {
                 );
               },
             ),
-
-            // Puedes agregar más opciones aquí
-            // _buildCard(context, icon: Icons.people, title: 'Gestionar Usuarios', onTap: () {}),
           ],
         ),
       ),
