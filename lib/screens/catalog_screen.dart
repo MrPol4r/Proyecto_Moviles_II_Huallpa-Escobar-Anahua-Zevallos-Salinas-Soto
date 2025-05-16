@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 import 'product_detail_screen.dart';
+import 'chat_screen.dart'; // 👈 Agrega esto al inicio
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -131,6 +132,18 @@ class _CatalogScreenState extends State<CatalogScreen> {
             ),
           ],
         ),
+      ),
+      // 👇 Este es el botón flotante del chatbot
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ChatScreen()),
+          );
+        },
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.chat),
+        tooltip: 'Asistente Virtual',
       ),
     );
   }
