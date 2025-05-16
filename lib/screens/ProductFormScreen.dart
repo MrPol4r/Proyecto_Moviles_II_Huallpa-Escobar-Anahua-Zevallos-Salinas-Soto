@@ -41,6 +41,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   @override
   void initState() {
     super.initState();
+    cargarCategoriasDesdeFirebase();
     final p = widget.productoExistente;
     if (p != null) {
       _nombreController.text = p.nombre;
@@ -72,6 +73,129 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _nuevaTallaController.dispose();
     _nuevaImagenController.dispose();
     super.dispose();
+  }
+
+  List<String> coloresDisponibles = [];
+
+  Widget _buildColorSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Colores personalizados',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children:
+              colores.map((color) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Chip(
+                          label: Text(color),
+                          onDeleted: () {
+                            setState(() {
+                              colores.remove(color);
+                              colorImagenes.remove(
+                                color,
+                              ); // quita imagen también
+                            });
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.image, size: 20),
+                          tooltip: 'Subir imagen para $color',
+                          onPressed: () => _subirImagenPorColor(color),
+                        ),
+                      ],
+                    ),
+                    if (colorImagenes[color] != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.network(
+                            colorImagenes[color]!,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              }).toList(),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _nuevoColorController,
+          decoration: const InputDecoration(
+            labelText: 'Agregar color',
+            border: OutlineInputBorder(),
+          ),
+          onFieldSubmitted: (value) async {
+            final nuevo = value.trim();
+            if (nuevo.isNotEmpty && !colores.contains(nuevo)) {
+              setState(() {
+                colores.add(nuevo);
+                _nuevoColorController.clear();
+              });
+
+              // Opcional: guardar en Firestore
+              await FirebaseFirestore.instance
+                  .collection('color')
+                  .doc('nombre')
+                  .set({
+                    'nombre': FieldValue.arrayUnion([nuevo]),
+                  }, SetOptions(merge: true));
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Map<String, String> colorImagenes = {}; // Color → URL de imagen
+
+  Future<void> _subirImagenPorColor(String color) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final url = await subirImagenACloudinary(File(pickedFile.path));
+      if (url != null) {
+        setState(() {
+          colorImagenes[color] = url;
+        });
+      }
+    }
+  }
+
+  Map<String, List<String>> categorias = {};
+  List<String> opcionesCategoria = [];
+  Future<void> cargarCategoriasDesdeFirebase() async {
+    final snapshot =
+        await FirebaseFirestore.instance.collection('categoria').get();
+    if (snapshot.docs.isNotEmpty) {
+      final data = snapshot.docs.first.data();
+
+      final List<String> todas = [];
+      data.forEach((key, value) {
+        if (value is List) {
+          categorias[key] = List<String>.from(value);
+          todas.addAll(List<String>.from(value));
+        }
+      });
+
+      setState(() {
+        opcionesCategoria = todas.toSet().toList(); // Elimina duplicados
+      });
+    }
   }
 
   Future<String?> subirImagenACloudinary(File imageFile) async {
@@ -133,6 +257,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       vendidos: widget.productoExistente?.vendidos ?? 0,
       imagenes: imagenes,
       colores: colores,
+      colorImagenes: colorImagenes,
       tallas: tallas,
       descripcionTallas: _descripcionTallasController.text.trim(),
       comentarios: widget.productoExistente?.comentarios ?? [],
@@ -157,7 +282,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         ),
       );
 
-      Navigator.pop(context);
+      Navigator.pop(context, nuevo);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -198,7 +323,33 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   'Descripción Tallas',
                   _descripcionTallasController,
                 ),
-                _buildTextField('Categoría', _categoriaController),
+                DropdownButtonFormField<String>(
+                  value:
+                      _categoriaController.text.isNotEmpty
+                          ? _categoriaController.text
+                          : null,
+                  items:
+                      opcionesCategoria
+                          .map(
+                            (cat) =>
+                                DropdownMenuItem(value: cat, child: Text(cat)),
+                          )
+                          .toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      _categoriaController.text = val ?? '';
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Categoría',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator:
+                      (val) =>
+                          val == null || val.isEmpty
+                              ? 'Seleccione una categoría'
+                              : null,
+                ),
                 _buildTextField('Stock', _stockController, isNumeric: true),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
@@ -215,7 +366,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildChipInput('Colores', colores, _nuevoColorController),
+                _buildColorSelector(),
                 _buildChipInput('Tallas', tallas, _nuevaTallaController),
                 _buildImagePreviewSection(),
                 ElevatedButton.icon(

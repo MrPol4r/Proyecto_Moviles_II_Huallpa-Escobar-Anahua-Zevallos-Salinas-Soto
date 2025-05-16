@@ -33,7 +33,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   Future<List<Product>> _loadProducts() async {
     final snapshot =
-        await FirebaseFirestore.instance.collection('producto').get();
+        await FirebaseFirestore.instance
+            .collection('producto')
+            .where('estado', isEqualTo: 'disponible')
+            .get();
+
     final productos =
         snapshot.docs
             .map((doc) => Product.fromMap(doc.id, doc.data()))
@@ -46,16 +50,16 @@ class _CatalogScreenState extends State<CatalogScreen> {
   }
 
   void _filterProducts() {
+    final texto = _searchText.toLowerCase();
+
     setState(() {
       _filteredProducts =
           _allProducts.where((p) {
-            final matchesText = p.nombre.toLowerCase().contains(
-              _searchText.toLowerCase(),
-            );
-            final matchesCategory =
+            final coincideNombre = p.nombre.toLowerCase().contains(texto);
+            final coincideCategoria =
                 _selectedCategory == 'Todos' ||
                 p.categoria == _selectedCategory;
-            return matchesText && matchesCategory;
+            return coincideNombre && coincideCategoria;
           }).toList();
     });
   }
