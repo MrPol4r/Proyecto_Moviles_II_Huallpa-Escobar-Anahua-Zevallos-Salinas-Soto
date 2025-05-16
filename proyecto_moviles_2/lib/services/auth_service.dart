@@ -45,4 +45,17 @@ class AuthService {
 
     return doc.data();
   }
+
+  // PREFERENCIAS
+  static Future<bool> hasCompletedPreferences() async {
+    if (_userId == null) return false;
+
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('usuario')
+            .doc(_userId)
+            .get();
+
+    return doc.data()?['preferencias'] != null;
+  }
 }

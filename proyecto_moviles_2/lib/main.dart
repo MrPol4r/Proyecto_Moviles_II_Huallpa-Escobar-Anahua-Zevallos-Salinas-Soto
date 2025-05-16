@@ -8,6 +8,8 @@ import 'screens/catalog_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/AdminDashboardScreen.dart';
+//
+import 'screens/preferences_form.dart'; // PREFERENCIAS
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Necesario antes de inicializar Firebase
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/home': (ctx) => const MainScreen(),
         '/catalog': (ctx) => CatalogScreen(),
+        '/preferencias': (ctx) => const PreferencesFormScreen(),
+
       },
     );
   }

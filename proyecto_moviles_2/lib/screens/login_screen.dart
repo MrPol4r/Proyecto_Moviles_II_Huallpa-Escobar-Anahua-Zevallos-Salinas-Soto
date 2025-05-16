@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'AdminDashboardScreen.dart';
 import 'main_screen.dart';
+//
+import 'preferences_form.dart'; // PREFERENCIAS
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,15 +46,25 @@ class _LoginScreenState extends State<LoginScreen> {
               MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
             );
           } else {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const MainScreen()),
-            );
+            final completed = await AuthService.hasCompletedPreferences();
+
+            if (completed) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const MainScreen()),
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PreferencesFormScreen(),
+                ),
+              );
+            }
           }
         } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const MainScreen()),
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Usuario no encontrado')),
           );
         }
       } else {
