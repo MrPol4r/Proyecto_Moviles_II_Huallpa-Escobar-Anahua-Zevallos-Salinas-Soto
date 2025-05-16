@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'productlistscreen.dart'; // donde está el CRUD de productos
+import 'UserListScreen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -28,6 +29,18 @@ class AdminDashboardScreen extends StatelessWidget {
                 );
               },
             ),
+            _buildCard(
+              context,
+              icon: Icons.people,
+              title: 'Gestionar Usuarios',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const UserListScreen()),
+                );
+              },
+            ),
+
             // Puedes agregar más opciones aquí
             // _buildCard(context, icon: Icons.people, title: 'Gestionar Usuarios', onTap: () {}),
           ],
