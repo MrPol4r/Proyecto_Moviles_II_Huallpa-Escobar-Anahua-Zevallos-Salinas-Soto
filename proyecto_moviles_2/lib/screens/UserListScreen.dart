@@ -48,6 +48,16 @@ class _UserListScreenState extends State<UserListScreen> {
       }
 
       await _cargarUsuarios();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            usuario == null
+                ? 'Usuario agregado correctamente'
+                : 'Usuario actualizado',
+          ),
+        ),
+      );
     }
   }
 
@@ -56,6 +66,9 @@ class _UserListScreenState extends State<UserListScreen> {
       'activo': false,
     });
     await _cargarUsuarios();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Usuario marcado como inactivo')),
+    );
   }
 
   void _confirmarInactivar(String id) {

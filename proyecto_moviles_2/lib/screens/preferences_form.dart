@@ -25,8 +25,12 @@ class _PreferencesFormScreenState extends State<PreferencesFormScreen> {
   Future<void> _guardarPreferencias() async {
     if (categoriaSeleccionada == null ||
         frecuenciaSeleccionada == null ||
-        edadSeleccionada == null)
+        edadSeleccionada == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Completa todos los campos')),
+      );
       return;
+    }
 
     setState(() => _enviando = true);
 
@@ -40,6 +44,10 @@ class _PreferencesFormScreenState extends State<PreferencesFormScreen> {
         'edad': edadSeleccionada,
       },
     });
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Preferencias guardadas')));
 
     if (mounted) {
       Navigator.pushReplacement(

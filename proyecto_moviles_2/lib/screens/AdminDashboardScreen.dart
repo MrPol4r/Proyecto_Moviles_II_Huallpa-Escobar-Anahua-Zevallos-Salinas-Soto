@@ -12,7 +12,9 @@ class AdminDashboardScreen extends StatelessWidget {
       builder:
           (_) => AlertDialog(
             title: const Text('Cerrar sesión'),
-            content: const Text('¿Estás seguro que deseas cerrar sesión?'),
+            content: const Text(
+              '¿Seguro que deseas cerrar tu sesión actual y volver al login?',
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),

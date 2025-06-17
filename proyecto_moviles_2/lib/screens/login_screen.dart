@@ -63,22 +63,22 @@ class _LoginScreenState extends State<LoginScreen> {
             }
           }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Usuario no encontrado')),
-          );
+          mostrarAlerta('Usuario no encontrado');
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Credenciales incorrectas')),
-        );
+        mostrarAlerta('Credenciales incorrectas');
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al iniciar sesión: $e')));
+      mostrarAlerta('Error al iniciar sesión: $e');
     } finally {
       setState(() => _loading = false);
     }
+  }
+
+  void mostrarAlerta(String mensaje) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   @override
