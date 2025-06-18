@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import 'package:proyecto_moviles_2/services/AuthService.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -29,47 +29,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (!AuthService.isUserLoggedIn()) {
-      return const Center(child: Text('🔒 Inicia sesión para ver tu perfil'));
+      return const Scaffold(
+        body: Center(child: Text('🔒 Inicia sesión para ver tu perfil')),
+      );
     }
 
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_userData == null) {
-      return const Center(child: Text('No se pudo cargar el perfil.'));
+      return const Scaffold(
+        body: Center(child: Text('❌ No se pudo cargar el perfil.')),
+      );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('👤 Perfil')),
+      appBar: AppBar(
+        title: const Text('Perfil del Usuario'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await AuthService.logout();
+              Navigator.pushReplacementNamed(context, '/');
+            },
+            tooltip: 'Cerrar sesión',
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Nombre: ${_userData!['nombre'] ?? 'Sin nombre'}',
-              style: const TextStyle(fontSize: 18),
+            const CircleAvatar(
+              radius: 40,
+              backgroundImage: AssetImage(
+                'assets/images/perfil.png',
+              ), // opcional
+              backgroundColor: Colors.grey,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Correo: ${_userData!['usuario'] ?? ''}',
-              style: const TextStyle(fontSize: 18),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Nombre'),
+              subtitle: Text(_userData!['nombre'] ?? 'Sin nombre'),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Teléfono: ${_userData!['telefono'] ?? 'No registrado'}',
-              style: const TextStyle(fontSize: 18),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.email),
+              title: const Text('Correo'),
+              subtitle: Text(_userData!['email'] ?? 'Sin correo'),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.phone),
+              title: const Text('Teléfono'),
+              subtitle: Text(_userData!['telefono'] ?? 'Sin número'),
             ),
             const Spacer(),
             ElevatedButton.icon(
-              onPressed: () {
-                AuthService.logout();
+              onPressed: () async {
+                await AuthService.logout();
                 Navigator.pushReplacementNamed(context, '/');
               },
               icon: const Icon(Icons.logout),
               label: const Text('Cerrar sesión'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
             ),
           ],
         ),

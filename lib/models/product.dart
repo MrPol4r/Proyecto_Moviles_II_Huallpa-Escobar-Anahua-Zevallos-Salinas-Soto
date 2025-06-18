@@ -1,3 +1,6 @@
+// models/product.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Product {
   final String id;
   final String nombre;
@@ -16,6 +19,7 @@ class Product {
   final String estado;
   final int stock;
   final String categoria;
+  final String? idVendedor; // <--- ¡NUEVO CAMPO AQUÍ!
 
   Product({
     required this.id,
@@ -28,13 +32,14 @@ class Product {
     required this.vendidos,
     required this.imagenes,
     required this.colores,
-    required this.colorImagenes, // ← nuevo campo en constructor
+    required this.colorImagenes,
     required this.tallas,
     required this.descripcionTallas,
     required this.comentarios,
     required this.categoria,
     required this.estado,
     required this.stock,
+    this.idVendedor, // <--- ¡Añadido al constructor! Lo hacemos opcional para flexibilidad.
   });
 
   factory Product.fromMap(String id, Map<String, dynamic> data) {
@@ -49,20 +54,19 @@ class Product {
       vendidos: data['vendidos'] ?? 0,
       imagenes: List<String>.from(data['imagenes'] ?? []),
       colores: List<String>.from(data['colores'] ?? []),
-      colorImagenes: Map<String, String>.from(
-        data['colorImagenes'] ?? {},
-      ), // ← mapea correctamente
+      colorImagenes: Map<String, String>.from(data['colorImagenes'] ?? {}),
       tallas: List<String>.from(data['tallas'] ?? []),
       descripcionTallas: data['descripcion_tallas'] ?? '',
       comentarios: List<Map<String, dynamic>>.from(data['comentarios'] ?? []),
       categoria: data['categoria'] ?? 'Sin categoría',
       estado: data['estado'] ?? 'disponible',
       stock: data['stock'] ?? 0,
+      idVendedor: data['idVendedor'], // <--- ¡Mapea desde Firestore!
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
+    final map = {
       'nombre': nombre,
       'precio': precio,
       'descuento': descuento,
@@ -72,13 +76,20 @@ class Product {
       'vendidos': vendidos,
       'imagenes': imagenes,
       'colores': colores,
-      'colorImagenes': colorImagenes, // ← exporta correctamente
+      'colorImagenes': colorImagenes,
       'tallas': tallas,
       'descripcion_tallas': descripcionTallas,
       'comentarios': comentarios,
       'categoria': categoria,
       'estado': estado,
       'stock': stock,
+      // Se añade 'idVendedor' al mapa solo si no es nulo
+      // Esto es útil si tienes datos antiguos que no tienen este campo
+      // y no quieres que se guarde un "null" explícito si no es necesario.
+      // Sin embargo, para este caso, siempre lo querrás guardar.
+      // Así que lo simplificamos a que siempre se incluya.
+      'idVendedor': idVendedor, // <--- ¡Exporta a Firestore!
     };
+    return map;
   }
 }

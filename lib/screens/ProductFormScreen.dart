@@ -1,3 +1,5 @@
+// product_form_screen.dart (Solo la parte relevante de _guardarProducto)
+
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import '../models/product.dart';
+import '../services/AuthService.dart'; // <-- IMPORTA TU AUTHSERVICE
 
 class ProductFormScreen extends StatefulWidget {
   final Product? productoExistente;
@@ -38,6 +41,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   final _nuevaTallaController = TextEditingController();
   final _nuevaImagenController = TextEditingController();
 
+  Map<String, String> colorImagenes = {}; // Color → URL de imagen
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +60,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       colores = List.from(p.colores);
       tallas = List.from(p.tallas);
       imagenes = List.from(p.imagenes);
+      colorImagenes = Map.from(
+        p.colorImagenes,
+      ); // Carga también las imágenes por color
     } else {
       estadoSeleccionado = 'disponible';
     }
@@ -124,6 +132,13 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) => Image.asset(
+                                  'assets/images/placeholder.png',
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
                           ),
                         ),
                       ),
@@ -146,7 +161,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 _nuevoColorController.clear();
               });
 
-              // Opcional: guardar en Firestore
               await FirebaseFirestore.instance
                   .collection('color')
                   .doc('nombre')
@@ -159,8 +173,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       ],
     );
   }
-
-  Map<String, String> colorImagenes = {}; // Color → URL de imagen
 
   Future<void> _subirImagenPorColor(String color) async {
     final picker = ImagePicker();
@@ -222,7 +234,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     } else {
       print('Error al subir: ${response.statusCode}');
       print('Error al subir la imagen');
-
       return null;
     }
   }
@@ -246,6 +257,20 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final id = widget.productoExistente?.id ?? const Uuid().v4();
+    final currentUserId =
+        AuthService.currentUser?.uid; // <-- OBTIENE EL ID DEL VENDEDOR LOGUEADO
+
+    if (currentUserId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Error: No hay vendedor logueado para guardar el producto.',
+          ),
+        ),
+      );
+      return;
+    }
+
     final nuevo = Product(
       id: id,
       nombre: _nombreController.text.trim(),
@@ -264,6 +289,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       categoria: _categoriaController.text.trim(),
       estado: estadoSeleccionado,
       stock: int.parse(_stockController.text),
+      idVendedor: currentUserId, // <-- ASIGNA EL ID DEL VENDEDOR
     );
 
     try {

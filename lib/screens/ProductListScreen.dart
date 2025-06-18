@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 import 'ProductFormScreen.dart';
+import 'package:proyecto_moviles_2/services/AuthService.dart'; // <-- IMPORTA TU AUTHSERVICE
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -13,17 +14,42 @@ class ProductListScreen extends StatefulWidget {
 
 class _ProductListScreenState extends State<ProductListScreen> {
   List<Product> productos = [];
+  String? _currentUserId; // Para guardar el ID del vendedor logueado
 
   @override
   void initState() {
     super.initState();
-    _cargarProductos();
+    _loadCurrentUserIdAndProducts(); // Carga el ID y luego los productos
+  }
+
+  // Nuevo método para cargar el ID del usuario y luego los productos
+  Future<void> _loadCurrentUserIdAndProducts() async {
+    _currentUserId = AuthService.currentUser?.uid;
+    if (_currentUserId == null) {
+      // Manejar el caso donde no hay un usuario logueado (ej. redirigir a login o mostrar mensaje)
+      print('Advertencia: No hay usuario logueado en ProductListScreen.');
+      setState(() {
+        productos = []; // Asegurarse de que la lista esté vacía
+      });
+      return;
+    }
+    _cargarProductos(); // Ahora llama a cargarProductos
   }
 
   Future<void> _cargarProductos() async {
+    if (_currentUserId == null) {
+      // Asegurarse de que tenemos un ID de usuario antes de consultar
+      print('Error: No se puede cargar productos sin un ID de vendedor.');
+      return;
+    }
+
     final snapshot =
         await FirebaseFirestore.instance
             .collection('producto')
+            .where(
+              'idVendedor',
+              isEqualTo: _currentUserId,
+            ) // <-- FILTRA POR EL ID DEL VENDEDOR
             .where('estado', isNotEqualTo: 'inactivo')
             .get();
 
@@ -65,6 +91,16 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   void _eliminarProducto(Product producto) async {
+    // Asegúrate de que solo el vendedor del producto pueda eliminarlo
+    if (producto.idVendedor != _currentUserId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No tienes permiso para eliminar este producto.'),
+        ),
+      );
+      return;
+    }
+
     await FirebaseFirestore.instance
         .collection('producto')
         .doc(producto.id)
@@ -78,6 +114,16 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   void _editarProducto(Product producto) async {
+    // Asegúrate de que solo el vendedor del producto pueda editarlo
+    if (producto.idVendedor != _currentUserId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No tienes permiso para editar este producto.'),
+        ),
+      );
+      return;
+    }
+
     final productoEditado = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -86,11 +132,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
 
     if (productoEditado != null) {
-      await FirebaseFirestore.instance
-          .collection('producto')
-          .doc(productoEditado.id)
-          .set(productoEditado.toMap());
-
+      // El método set ya reemplaza el documento. No necesitas el .toMap() aquí
+      // porque ProductFormScreen ya lo maneja internamente al guardar.
+      // Solo necesitas asegurarte de que _cargarProductos() se ejecute para refrescar la lista
       _cargarProductos();
     }
   }
@@ -100,8 +144,16 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Gestión de Productos')),
       body:
-          productos.isEmpty
-              ? const Center(child: CircularProgressIndicator())
+          _currentUserId == null
+              ? const Center(
+                child: Text(
+                  'Por favor, inicia sesión como vendedor para ver tus productos.',
+                ),
+              )
+              : productos.isEmpty
+              ? const Center(
+                child: Text('No tienes productos agregados aún.'),
+              ) // Mensaje si no hay productos
               : ListView.builder(
                 itemCount: productos.length,
                 itemBuilder: (_, i) {
@@ -152,15 +204,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
+          if (_currentUserId == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Debes iniciar sesión para agregar productos.'),
+              ),
+            );
+            return;
+          }
+
           final nuevo = await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ProductFormScreen()),
           );
           if (nuevo != null) {
-            await FirebaseFirestore.instance
-                .collection('producto')
-                .doc(nuevo.id)
-                .set(nuevo.toMap());
+            // El set del producto ya se hace dentro de _guardarProducto en ProductFormScreen.
+            // Aquí solo necesitas recargar la lista de productos
             _cargarProductos();
           }
         },
