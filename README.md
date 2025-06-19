@@ -1,45 +1,32 @@
-# 🛍️ tienda_ropas
+# Proyecto Móvil - TrendyCart
 
-Aplicación móvil desarrollada con **Flutter** para una tienda de ropa. Permite a los usuarios registrarse, iniciar sesión, recuperar su contraseña y navegar por la interfaz de usuario.
+**Curso:** Soluciones Móviles II  
+**Docente:** Dr. Oscar Juan Jimenez Flores  
 
----
-
-## 🚀 Características principales
-
-- Registro de usuarios  
-- Inicio de sesión con Firebase Authentication  
-- Recuperación de contraseña  
-- Interfaz intuitiva y moderna  
-
----
-
-## 📸 Capturas de Pantalla
-
-### 🧩 SE GUARDA LAS FOTOS AQUI cloudinary
-![Inicio](https://github.com/user-attachments/assets/ce30434d-caf1-4ed2-9f19-b3e1bb1c9d50)
-
-### 🔐 Registro de Cuenta
-![Firebase](https://github.com/user-attachments/assets/23babede-b2ed-4f09-901b-fca105ff01a1)  
-![Registro](https://github.com/user-attachments/assets/ad3948d7-264a-44c8-9e85-12387b527bee)
-
-### 🔓 Login
-![Login](https://github.com/user-attachments/assets/17173e34-803c-45dd-8887-b29ce757b262)
-
-### ❓ Recuperar Contraseña
-![Olvidar Contraseña](https://github.com/user-attachments/assets/cb45382c-0838-47e6-a4a0-dfdc4202445d)
-
-### 🖼️ Vista Adicional
-![Vista extra](https://github.com/user-attachments/assets/19515038-133c-4eb1-8cc6-f12aaf499ae1)
-
-### ➕ Agregar Producto (Firebase)
-![Agregar producto](https://github.com/user-attachments/assets/d22ebc85-ca8e-4196-9933-76919e3bd9ab)
+**Integrantes:**
+- Salinas Condori, Erick Javier – 2020069046  
+- Zevallos Purca, Justin Zinedine – 2020066924  
+- Mayner Gonzalo Anahua Coaquira – 2020067145  
+- Escobar Rejas, Carlos Andrés – 2021070016  
+- Huallpa Maron, Jesus – 2021071085  
+- Soto Rodriguez, Duanet – 2015051384  
 
 ---
 
-## ⚙️ Tecnologías utilizadas
+# Historias de Usuario
 
-- **Flutter** (Dart)  
-- **Firebase** (Authentication)  
-- Arquitectura: Clean Architecture (opcional si aplica)
+| ID | Título                              | User Story                                                                                         | Criterios de Aceptación |
+|----|-------------------------------------|-----------------------------------------------------------------------------------------------------|--------------------------|
+| 1  | Inicio Sesión                       | Como usuario, quiero iniciar sesión para acceder al sistema.                                       | **CA01:** Inicio exitoso<br>**CA02:** Credenciales incorrectas |
+| 2  | Registro de Usuario                 | Como cliente y vendedor, quiero registrarme ingresando mis datos personales para usar la plataforma.| **CA01:** Registro exitoso<br>**CA02:** Correo único |
+| 3  | Visualización de Catálogos         | Como cliente, quiero explorar un catálogo con imágenes, precios y calificaciones.                 | **CA01:** Visualización<br>**CA02:** Ordenar por calificación o precio |
+| 4  | Publicación de comentarios          | Como cliente, quiero publicar comentarios para ayudar a otros.                                    | **CA01:** Publicación exitosa<br>**CA02:** Visualización de comentarios |
+| 5  | Buscar productos por categoría      | Como cliente, quiero filtrar productos por categorías.                                             | **CA01:** Filtrado por tipo de producto |
+| 6  | Interacción con chatbot             | Como cliente, quiero resolver dudas mediante un chatbot interactivo.                              | **CA01:** Inicio de la interacción |
+| 7  | Pagos seguros                       | Como cliente, quiero pagar en línea de forma segura.                                               | **CA01:** Selección de método de pago |
+| 8  | Gestión de usuarios (admin)         | Como administrador, quiero gestionar cuentas de usuarios.                                          | **CA01:** Creación de usuario<br>**CA02:** Desactivación de usuario |
+| 9  | Gestión de productos (admin)        | Como administrador, quiero gestionar el inventario de productos.                                   | **CA01:** Agregar nuevo producto |
+| 10 | Actualización del carrito           | Como cliente, quiero que el carrito se actualice automáticamente.                                 | **CA01:** Agregar producto al carrito |
+| 11 | Recuperación de contraseña          | Como usuario, quiero recuperar mi contraseña olvidada.                                             | **CA01:** Solicitud de recuperación<br>**CA02:** Restablecimiento exitoso |
+| 12 | Agregar productos a favoritos       | Como cliente, quiero agregar productos a una lista de deseos.                                     | **CA01:** Agregar a favoritos<br>**CA02:** Visualización de favoritos |
 
----

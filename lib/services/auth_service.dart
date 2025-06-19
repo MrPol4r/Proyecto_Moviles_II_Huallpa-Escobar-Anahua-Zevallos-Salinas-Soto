@@ -1,52 +1,48 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  static String? _userId; // Guardamos el ID
 
-  // Obtener el usuario actual
-  User? get currentUser => _auth.currentUser;
-
-  // Iniciar sesión
-  Future<bool> login(String email, String password) async {
+  static Future<bool> signIn(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return true;
-    } on FirebaseAuthException catch (e) {
-      print("❌ Error de login: ${e.code} - ${e.message}");
+      final usuarios = FirebaseFirestore.instance.collection('usuario');
+
+      final resultado =
+          await usuarios
+              .where('usuario', isEqualTo: email)
+              .where('contrasena', isEqualTo: password)
+              .get();
+
+      if (resultado.docs.isNotEmpty) {
+        _userId = resultado.docs.first.id;
+        return true;
+      }
       return false;
-    }
-  }
-
-  // Registrar nuevo usuario
-  Future<bool> register(String email, String password) async {
-    try {
-      await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return true;
-    } on FirebaseAuthException catch (e) {
-      print("❌ Error de registro: ${e.code} - ${e.message}");
-      return false;
-    }
-  }
-
-  // Enviar correo de restablecimiento de contraseña
-  Future<bool> sendPasswordResetEmail(String email) async {
-    try {
-      await _auth.sendPasswordResetEmail(email: email);
-      return true;
     } catch (e) {
-      print('❌ Error enviando correo de recuperación: $e');
+      print('Error al autenticar: $e');
       return false;
     }
   }
 
-  // Cerrar sesión
-  Future<void> logout() async {
-    await _auth.signOut();
+  static bool isUserLoggedIn() {
+    return _userId != null;
+  }
+
+  static String? get userId => _userId;
+
+  static void logout() {
+    _userId = null;
+  }
+
+  static Future<Map<String, dynamic>?> getUserData() async {
+    if (_userId == null) return null;
+
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('usuario')
+            .doc(_userId)
+            .get();
+
+    return doc.data();
   }
 }

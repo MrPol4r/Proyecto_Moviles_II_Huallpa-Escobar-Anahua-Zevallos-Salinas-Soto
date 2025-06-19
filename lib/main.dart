@@ -1,63 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
-import 'package:tienda_ropas/screens/autentificacion/register_screen.dart';
-import 'package:tienda_ropas/screens/autentificacion/reset_password_screen.dart';
-import 'package:tienda_ropas/screens/autentificacion/role_selecctor_screen.dart';
-import 'package:tienda_ropas/screens/cliente/home_cliente_screen.dart';
-import 'package:tienda_ropas/screens/vendedor/home_vendedor_screen.dart';
-import 'package:tienda_ropas/screens/vendedor/nabvar/seller_add_product_page%20.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:proyecto_moviles_2/screens/AdminDashboardScreen.dart';
+import 'package:proyecto_moviles_2/screens/LoginScreen.dart';
+import 'package:proyecto_moviles_2/screens/RecoverPasswordScreen.dart';
+import 'package:proyecto_moviles_2/screens/RegisterScreen.dart';
 
-import 'services/auth_service.dart';
-import 'screens/autentificacion/login_screen.dart';
-import 'screens/home_screen.dart';
 import 'firebase_options.dart';
-import 'routes/app_routes.dart'; // 💡 importante
+
+// Pantallas de tu app
+import 'screens/main_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/catalog_screen.dart';
+import 'screens/chat_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } on FirebaseException catch (e) {
-    if (e.code != 'duplicate-app') rethrow;
-  }
-
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await dotenv.load(); // Solo si usas .env
   runApp(const MyApp());
 }
-
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Provider<AuthService>(
-      create: (_) => AuthService(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Tienda Ropas',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-          initialRoute: AppRoutes.roleSelector, // correcto en tu caso
-       // 👈 Cambiado
-        routes: {
-          
-          AppRoutes.roleSelector: (_) => const RoleSelectorScreen(), // 👈 Nueva ruta
-          AppRoutes.login: (context) => const LoginScreen(),
-          AppRoutes.register: (_) => const RegisterScreen(),
-          AppRoutes.resetPassword: (context) => const ResetPasswordScreen(),
-          AppRoutes.clientHome: (_) => const HomeClientScreen(),
-          AppRoutes.sellerHome: (_) => const HomeSellerScreen(),
-          AppRoutes.sellerAddProduct: (_) => const SellerAddProductPage(),
-
-        },
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'MyApp con Chatbot',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      initialRoute: '/',
+      routes: {
+        '/': (ctx) => const LoginScreen(),
+        '/login': (ctx) => const LoginScreen(),
+        '/register': (ctx) => const RegisterScreen(),
+        '/recover': (ctx) => const RecoverPasswordScreen(),
+        '/home': (ctx) => const MainScreen(),
+        '/catalog': (ctx) => CatalogScreen(),
+        '/chat': (ctx) => const ChatScreen(),
+        '/admin': (ctx) => const AdminDashboardScreen(),
+      },
     );
   }
 }
