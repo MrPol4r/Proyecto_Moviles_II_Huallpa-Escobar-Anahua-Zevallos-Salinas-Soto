@@ -40,40 +40,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return const Center(child: Text('No se pudo cargar el perfil.'));
     }
 
+    final nombre = _userData!['nombre'] ?? 'Sin nombre';
+    final correo = _userData!['usuario'] ?? '';
+    final telefono = _userData!['telefono']?.toString() ?? 'No registrado';
+
     return Scaffold(
       appBar: AppBar(title: const Text('👤 Perfil')),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Nombre: ${_userData!['nombre'] ?? 'Sin nombre'}',
-              style: const TextStyle(fontSize: 18),
+            const CircleAvatar(
+              radius: 40,
+              child: Icon(Icons.person, size: 50),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Correo: ${_userData!['usuario'] ?? ''}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Teléfono: ${_userData!['telefono'] ?? 'No registrado'}',
-              style: const TextStyle(fontSize: 18),
+            const SizedBox(height: 20),
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildRow(Icons.person, 'Nombre', nombre),
+                    const Divider(),
+                    _buildRow(Icons.email, 'Correo', correo),
+                    const Divider(),
+                    _buildRow(Icons.phone, 'Teléfono', telefono),
+                  ],
+                ),
+              ),
             ),
             const Spacer(),
-            ElevatedButton.icon(
-              onPressed: () {
-                AuthService.logout();
-                Navigator.pushReplacementNamed(context, '/');
-              },
-              icon: const Icon(Icons.logout),
-              label: const Text('Cerrar sesión'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  AuthService.logout();
+                  Navigator.pushReplacementNamed(context, '/');
+                },
+                icon: const Icon(Icons.logout),
+                label: const Text('Cerrar sesión'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: Colors.blue),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(value, style: const TextStyle(fontSize: 16)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
