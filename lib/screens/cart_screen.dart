@@ -79,9 +79,61 @@ class CartScreen extends StatelessWidget {
                                 : const Icon(Icons.image_not_supported),
                         title: Text(data['nombre'] ?? 'Producto'),
                         subtitle: Text('Cantidad: $cantidad'),
-                        trailing: Text(
-                          'S/ ${subtotal.toStringAsFixed(2)}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'S/ ${subtotal.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              tooltip: 'Quitar del carrito',
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder:
+                                      (context) => AlertDialog(
+                                        title: const Text(
+                                          '¿Eliminar producto?',
+                                        ),
+                                        content: Text(
+                                          '¿Deseas quitar "${data['nombre']}" del carrito?',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  false,
+                                                ),
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  true,
+                                                ),
+                                            child: const Text('Eliminar'),
+                                          ),
+                                        ],
+                                      ),
+                                );
+
+                                if (confirm == true) {
+                                  await FirebaseFirestore.instance
+                                      .collection('carrito')
+                                      .doc(uid)
+                                      .collection('items')
+                                      .doc(producto.id)
+                                      .delete();
+                                }
+                              },
+                            ),
+                          ],
                         ),
                       );
                     },
