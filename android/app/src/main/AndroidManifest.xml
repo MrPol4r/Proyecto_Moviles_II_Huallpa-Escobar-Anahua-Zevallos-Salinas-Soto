@@ -1,11 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- ✅ PERMISOS VAN AQUÍ -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     
     <application
+        android:usesCleartextTraffic="true"
         android:label="proyecto_moviles_2"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 import 'product_detail_screen.dart';
@@ -179,15 +180,53 @@ class _CatalogScreenState extends State<CatalogScreen> {
         ),
         trailing: IconButton(
           icon: const Icon(Icons.shopping_cart),
-          onPressed: () {
+          onPressed: () async {
+            final user = FirebaseAuth.instance.currentUser;
+
+            if (user == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Debes iniciar sesión para comprar'),
+                ),
+              );
+              return;
+            }
+
+            final productoRef = FirebaseFirestore.instance
+                .collection('carrito')
+                .doc(user.uid)
+                .collection(
+                  'items',
+                ) // ✅ Esto es lo que estás leyendo en CartScreen
+                .doc(product.id);
+
+            final docSnapshot = await productoRef.get();
+
+            if (docSnapshot.exists) {
+              // Si ya está en el carrito, aumenta la cantidad
+              await productoRef.update({'cantidad': FieldValue.increment(1)});
+            } else {
+              // Si no está, lo agrega con cantidad 1
+              await productoRef.set({
+                'nombre': product.nombre,
+                'precio': product.precio,
+                'imagen':
+                    product.imagenes.isNotEmpty ? product.imagenes[0] : '',
+                'cantidad': 1,
+                'descuento': product.descuento,
+                'id_producto': product.id,
+                'id_vendedor':
+                    product.idVendedor, // Si guardas el UID del vendedor
+              });
+            }
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  'Producto "${product.nombre}" agregado al carrito (simulado)',
-                ),
+                content: Text('Agregado al carrito: "${product.nombre}"'),
               ),
             );
           },
+          tooltip: 'Agregar al carrito',
         ),
         onTap: () {
           Navigator.push(

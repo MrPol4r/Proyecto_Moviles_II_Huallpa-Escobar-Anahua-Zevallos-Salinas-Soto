@@ -5,6 +5,7 @@ import 'package:proyecto_moviles_2/screens/AdminDashboardScreen.dart';
 import 'package:proyecto_moviles_2/screens/LoginScreen.dart';
 import 'package:proyecto_moviles_2/screens/RecoverPasswordScreen.dart';
 import 'package:proyecto_moviles_2/screens/RegisterScreen.dart';
+import 'package:proyecto_moviles_2/screens/registro_pago_screen.dart';
 
 import 'firebase_options.dart';
 
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/catalog': (ctx) => CatalogScreen(),
         '/chat': (ctx) => const ChatScreen(),
         '/admin': (ctx) => const AdminDashboardScreen(),
+        '/registro-pago': (context) => const RegistroPagoScreen(),
       },
     );
   }

@@ -37,6 +37,7 @@ dependencies:
   image_picker: ^1.1.2
   firebase_storage: 11.6.5
   http: ^0.13.6
+  url_launcher: ^6.2.5 # Para abrir el checkout de Mercado Pago
   cloud_firestore: ^4.8.3
   dialogflow_flutter: ^1.0.0
   protobuf: ^2.1.0
@@ -44,6 +45,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   firebase_core: ^2.31.0
   firebase_auth: ^4.17.8
+  webview_flutter: ^4.13.0
 
 
 dev_dependencies:
