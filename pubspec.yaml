@@ -35,7 +35,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   image_picker: ^1.1.2
-  firebase_storage: 11.6.5
   http: ^0.13.6
   url_launcher: ^6.2.5 # Para abrir el checkout de Mercado Pago
   cloud_firestore: ^4.8.3
