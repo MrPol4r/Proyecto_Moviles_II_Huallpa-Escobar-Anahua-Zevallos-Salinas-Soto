@@ -1,3 +1,5 @@
+// Mantiene la lógica original, pero con mejoras visuales y validaciones simples
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -103,10 +105,11 @@ class _UserListScreenState extends State<UserListScreen> {
       appBar: AppBar(
         title: const Text('Gestión de Usuarios'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.person_add),
-            tooltip: 'Agregar usuario',
+          TextButton.icon(
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
             onPressed: () => _mostrarFormulario(),
+            icon: const Icon(Icons.person_add),
+            label: const Text('Agregar'),
           ),
         ],
       ),
@@ -114,37 +117,42 @@ class _UserListScreenState extends State<UserListScreen> {
           usuarios.isEmpty
               ? const Center(child: Text('No hay usuarios activos.'))
               : ListView.builder(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 itemCount: usuarios.length,
                 itemBuilder: (_, i) {
                   final u = usuarios[i];
+                  final nombre = u['nombre'] ?? 'Sin nombre';
+                  final correo = u['usuario'] ?? '';
+                  final telefono = u['telefono'] ?? '';
+
                   return Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    elevation: 3,
-                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
-                      title: Text(u['nombre'] ?? 'Sin nombre'),
+                      leading: CircleAvatar(
+                        child: Text(nombre[0].toUpperCase()),
+                      ),
+                      title: Text(nombre, style: const TextStyle(fontSize: 18)),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Email: ${u['usuario']}'),
-                          Text('Teléfono: ${u['telefono']}'),
+                          const SizedBox(height: 4),
+                          Text('Email: $correo'),
+                          Text('Teléfono: $telefono'),
                         ],
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      trailing: Wrap(
+                        spacing: 8,
                         children: [
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.blue),
                             onPressed: () => _mostrarFormulario(usuario: u),
                           ),
                           IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.red,
-                            ),
+                            icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () => _confirmarInactivar(u['id']),
                           ),
                         ],
@@ -178,10 +186,10 @@ class _FormularioUsuarioDialogState extends State<_FormularioUsuarioDialog> {
     nombreController = TextEditingController(text: widget.usuario?['nombre']);
     emailController = TextEditingController(text: widget.usuario?['usuario']);
     telefonoController = TextEditingController(
-      text: widget.usuario?['telefono']?.toString(),
+      text: widget.usuario?['telefono']?.toString() ?? '',
     );
     contrasenaController = TextEditingController(
-      text: widget.usuario?['contrasena'],
+      text: widget.usuario?['contrasena'] ?? '',
     );
   }
 
@@ -194,6 +202,28 @@ class _FormularioUsuarioDialogState extends State<_FormularioUsuarioDialog> {
     super.dispose();
   }
 
+  void _guardar() {
+    if (nombreController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty ||
+        contrasenaController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nombre, email y contraseña son obligatorios'),
+        ),
+      );
+      return;
+    }
+
+    final data = {
+      'id': widget.usuario?['id'],
+      'nombre': nombreController.text.trim(),
+      'usuario': emailController.text.trim(),
+      'telefono': int.tryParse(telefonoController.text.trim()) ?? 0,
+      'contrasena': contrasenaController.text.trim(),
+    };
+    Navigator.pop(context, data);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -204,22 +234,18 @@ class _FormularioUsuarioDialogState extends State<_FormularioUsuarioDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: nombreController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: telefonoController,
-              decoration: const InputDecoration(labelText: 'Teléfono'),
+            _buildInputField('Nombre', nombreController, Icons.person),
+            _buildInputField('Email', emailController, Icons.email),
+            _buildInputField(
+              'Teléfono',
+              telefonoController,
+              Icons.phone,
               keyboardType: TextInputType.number,
             ),
-            TextField(
-              controller: contrasenaController,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
+            _buildInputField(
+              'Contraseña',
+              contrasenaController,
+              Icons.lock,
               obscureText: true,
             ),
           ],
@@ -230,20 +256,30 @@ class _FormularioUsuarioDialogState extends State<_FormularioUsuarioDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancelar'),
         ),
-        ElevatedButton(
-          onPressed: () {
-            final data = {
-              'id': widget.usuario?['id'],
-              'nombre': nombreController.text.trim(),
-              'usuario': emailController.text.trim(),
-              'telefono': int.tryParse(telefonoController.text.trim()) ?? 0,
-              'contrasena': contrasenaController.text.trim(),
-            };
-            Navigator.pop(context, data);
-          },
-          child: const Text('Guardar'),
-        ),
+        ElevatedButton(onPressed: _guardar, child: const Text('Guardar')),
       ],
+    );
+  }
+
+  Widget _buildInputField(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      ),
     );
   }
 }
