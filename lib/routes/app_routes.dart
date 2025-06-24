@@ -25,7 +25,8 @@ class AppRoutes {
   // Si decides usarlo como genérico
    //  static const home = '/home';
 
+  static const sellerAddProduct = '/seller-add-product';
+  static const sellerEditProduct = '/seller-edit-product';
 
-   static const sellerAddProduct = '/seller-add-product';
 
 }
