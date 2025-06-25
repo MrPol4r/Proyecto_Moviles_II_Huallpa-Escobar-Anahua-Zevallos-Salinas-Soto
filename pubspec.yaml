@@ -75,7 +75,7 @@ flutter:
     - assets/images/perfil.png
     - assets/images/carrito_login.png
     - .env
-
+    - assets/images/modelo.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

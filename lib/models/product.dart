@@ -92,4 +92,53 @@ class Product {
     };
     return map;
   }
+  Product copyWith({
+    String? id,
+    String? nombre,
+    double? precio,
+    int? descuento,
+    String? descripcion,
+    double? valoracion,
+    int? valoracionesTotal,
+    int? vendidos,
+    List<String>? imagenes,
+    List<String>? colores,
+    Map<String, String>? colorImagenes,
+    List<String>? tallas,
+    String? descripcionTallas,
+    List<Map<String, dynamic>>? comentarios,
+    String? estado,
+    int? stock,
+    String? categoria,
+    String? idVendedor,
+  }) {
+    return Product(
+      id: id ?? this.id,
+      nombre: nombre ?? this.nombre,
+      precio: precio ?? this.precio,
+      descuento: descuento ?? this.descuento,
+      descripcion: descripcion ?? this.descripcion,
+      valoracion: valoracion ?? this.valoracion,
+      valoracionesTotal: valoracionesTotal ?? this.valoracionesTotal,
+      vendidos: vendidos ?? this.vendidos,
+      imagenes: imagenes ?? this.imagenes,
+      colores: colores ?? this.colores,
+      colorImagenes: colorImagenes ?? this.colorImagenes,
+      tallas: tallas ?? this.tallas,
+      descripcionTallas: descripcionTallas ?? this.descripcionTallas,
+      comentarios: comentarios ?? this.comentarios,
+      estado: estado ?? this.estado,
+      stock: stock ?? this.stock,
+      categoria: categoria ?? this.categoria,
+      idVendedor: idVendedor ?? this.idVendedor,
+    );
+  }
+   // **** MÉTODO fromFirestore: AGREGADO ****
+  factory Product.fromFirestore(DocumentSnapshot doc) {
+    // Convierte el DocumentSnapshot a un Map y luego usa tu fromMap existente.
+    // Esto asegura que la lógica de mapeo se mantiene en un solo lugar.
+    return Product.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+  }
+
+
 }

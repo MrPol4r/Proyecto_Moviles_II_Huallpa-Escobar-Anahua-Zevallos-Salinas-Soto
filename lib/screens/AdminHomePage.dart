@@ -9,23 +9,22 @@ class AdminHomePage extends StatelessWidget {
   void _cerrarSesion(BuildContext context) async {
     final confirmar = await showDialog<bool>(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text('Cerrar sesión'),
-            content: const Text(
-              '¿Seguro que deseas cerrar tu sesión actual y volver al login?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Cerrar sesión'),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text(
+          '¿Seguro que deseas cerrar tu sesión actual y volver al login?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cerrar sesión'),
+          ),
+        ],
+      ),
     );
 
     if (confirmar == true) {
@@ -37,8 +36,10 @@ class AdminHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF4F6FA),
       appBar: AppBar(
         title: const Text('Panel del Administrador'),
+        backgroundColor: Colors.deepPurple,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -51,15 +52,16 @@ class AdminHomePage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: GridView(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // puedes cambiarlo a 1 si prefieres lista
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+            crossAxisCount: 2,
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
           ),
           children: [
             _buildCard(
               context,
               icon: Icons.people,
               title: 'Gestionar Usuarios',
+              color: Colors.orangeAccent,
               onTap: () {
                 Navigator.push(
                   context,
@@ -67,6 +69,7 @@ class AdminHomePage extends StatelessWidget {
                 );
               },
             ),
+           
           ],
         ),
       ),
@@ -77,29 +80,47 @@ class AdminHomePage extends StatelessWidget {
     BuildContext context, {
     required IconData icon,
     required String title,
+    required Color color,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 48, color: Theme.of(context).primaryColor),
-              const SizedBox(height: 10),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x22000000),
+              blurRadius: 10,
+              offset: Offset(2, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                shape: BoxShape.circle,
               ),
-            ],
-          ),
+              padding: const EdgeInsets.all(16),
+              child: Icon(icon, size: 40, color: color),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ],
         ),
       ),
     );
