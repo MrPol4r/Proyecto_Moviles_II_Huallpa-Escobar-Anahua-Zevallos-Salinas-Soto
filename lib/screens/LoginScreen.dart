@@ -5,6 +5,7 @@ import 'package:proyecto_moviles_2/screens/RecoverPasswordScreen.dart';
 import 'package:proyecto_moviles_2/screens/RegisterScreen.dart';
 import '../services/AuthService.dart';
 import 'main_screen.dart';
+import 'package:proyecto_moviles_2/screens/AdminHomePage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -40,8 +41,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (ok) {
       final uid = AuthService.currentUser?.uid;
       final rol = await _obtenerRol(uid!);
-
-      if (rol == 'vendedor') {
+      if (rol == 'administrador') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminHomePage()),
+        );
+      } else if (rol == 'vendedor') {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
