@@ -3,7 +3,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/product.dart'; // Asegúrate que esté bien referenciado
+import 'package:firebase_auth/firebase_auth.dart'; // Importar FirebaseAuth para obtener el usuario actual
+import '../models/product.dart';
 import 'package:proyecto_moviles_2/screens/product_detail_screen.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -16,6 +17,72 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
 
+  Map<String, dynamic>?
+  _userPreferences; // Variable para almacenar las preferencias del usuario
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserPreferences(); // Cargar las preferencias al iniciar la pantalla
+    _sendInitialGreeting(); // Envía un mensaje inicial de bienvenida
+  }
+
+  // Método para cargar las preferencias del usuario desde Firestore
+  Future<void> _loadUserPreferences() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final userDoc =
+            await FirebaseFirestore.instance
+                .collection('usuario')
+                .doc(user.uid)
+                .get();
+        if (userDoc.exists) {
+          setState(() {
+            _userPreferences = userDoc.data();
+          });
+          print('Preferencias del usuario cargadas: $_userPreferences');
+        }
+      } catch (e) {
+        print('Error al cargar las preferencias del usuario: $e');
+      }
+    }
+  }
+
+  // Mensaje de bienvenida con o sin preferencias
+  void _sendInitialGreeting() async {
+    String greeting =
+        "¡Hola! Soy tu asistente de moda. ¿En qué puedo ayudarte hoy?";
+
+    // Esperar a que las preferencias se carguen
+    // Una pequeña demora para asegurar que _userPreferences tenga un valor después de _loadUserPreferences
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (_userPreferences != null && _userPreferences!.isNotEmpty) {
+      final colores =
+          _userPreferences!['colores_preferidos']?.join(', ') ?? 'ninguno';
+      final estilo = _userPreferences!['estilo_preferido'] ?? 'ninguno';
+      final genero = _userPreferences!['genero'] ?? 'ninguno';
+      final tipoPrenda =
+          _userPreferences!['tipo_prenda_favorita']?.join(', ') ?? 'ninguna';
+
+      greeting += "\nVeo que tienes algunas preferencias: ";
+      if (colores != 'ninguno') greeting += "Colores: $colores. ";
+      if (estilo != 'ninguno') greeting += "Estilo: $estilo. ";
+      if (genero != 'ninguno') greeting += "Género: $genero. ";
+      if (tipoPrenda != 'ninguna')
+        greeting += "Tipo de prenda favorita: $tipoPrenda. ";
+      greeting += "\n¿Hay algo en particular que estés buscando hoy?";
+    } else {
+      greeting +=
+          "\nNo he encontrado preferencias registradas. Dime, ¿qué tipo de ropa te gusta?";
+    }
+
+    setState(() {
+      _messages.insert(0, {'sender': 'gemini', 'text': greeting});
+    });
+  }
+
   Future<List<Product>> _obtenerProductos() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('producto').get();
@@ -26,9 +93,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   String _generarResumenProductos(List<Product> productos) {
     return productos
-        .take(5)
+        .take(
+          10,
+        ) // Limita a los primeros 10 productos para no exceder el límite de tokens
         .map((p) {
-          return "producto: ${p.nombre}, categoria: ${p.categoria}, precio: ${p.precio} soles, descuento: ${p.descuento}%, tallas: ${p.tallas.join(', ')}, colores: ${p.colores.join(', ')}";
+          return "ID: ${p.id}, producto: ${p.nombre}, categoria: ${p.categoria}, precio: ${p.precio} soles, descuento: ${p.descuento}%, tallas: ${p.tallas.join(', ')}, colores: ${p.colores.join(', ')}, stock: ${p.stock}";
         })
         .join("\n");
   }
@@ -66,22 +135,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<String> _obtenerRecomendacion(String userPrompt) async {
-    final productos = await _obtenerProductos();
-    final resumen = _generarResumenProductos(productos);
-
-    final mensajeCompleto = """
-    Usuario: $userPrompt
-
-    Aquí tienes los productos disponibles:
-    $resumen
-
-    Con base en estos productos, ¿cuál recomendarías?
-    """;
-
-    return await _getGeminiResponse(mensajeCompleto);
-  }
-
   void _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
@@ -91,32 +144,65 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     final productos = await _obtenerProductos();
-    final resumen = _generarResumenProductos(productos);
+    final resumenProductos = _generarResumenProductos(productos);
+
+    // Construir el prompt con las preferencias del usuario si están disponibles
+    String preferenciasPrompt = "";
+    if (_userPreferences != null && _userPreferences!.isNotEmpty) {
+      final colores =
+          _userPreferences!['colores_preferidos']?.join(', ') ?? 'ninguno';
+      final estilo = _userPreferences!['estilo_preferido'] ?? 'ninguno';
+      final genero = _userPreferences!['genero'] ?? 'ninguno';
+      final tipoPrenda =
+          _userPreferences!['tipo_prenda_favorita']?.join(', ') ?? 'ninguna';
+
+      preferenciasPrompt = """
+      Las preferencias conocidas del usuario son:
+      Colores preferidos: $colores
+      Estilo preferido: $estilo
+      Género: $genero
+      Tipo de prenda favorita: $tipoPrenda
+      """;
+    }
 
     final mensajeCompleto = """
-  Usuario: $text
-
-  Aquí tienes los productos disponibles:
-  $resumen
-
-  Con base en estos productos, ¿cuál recomendarías? Solo menciona el nombre del producto.
-  """;
+    Eres un asistente de moda amable y útil, especializado en recomendar productos de ropa. Tu objetivo es ayudar al usuario a encontrar prendas que le gusten.
+    Si el usuario pregunta por recomendaciones, usa sus preferencias (si las conoces) y la lista de productos disponibles.
+    Siempre menciona el nombre del producto exacto al hacer una recomendación.
+    Si el usuario pregunta algo que no tenga que ver con productos o ropa, responde amablemente que tu función es recomendar ropa.
+    Si un producto tiene stock 0, no lo recomiendes.
+    Si los productos que recomiendas tienen la talla o el color que el usuario busca, menciónalo también.
+    
+    Usuario: $text
+    
+    $preferenciasPrompt
+    
+    Aquí tienes la información detallada de los productos disponibles en nuestra tienda:
+    $resumenProductos
+    
+    Basándote en la pregunta del usuario y sus preferencias (si las conoces) y la lista de productos disponibles, ¿qué producto de ropa recomiendas? Por favor, sé conciso y directo con la recomendación. Si hay más de una, puedes mencionar hasta 3 productos. Si mencionas un producto, indica su nombre completo y si tiene descuento.
+    """;
 
     final respuesta = await _getGeminiResponse(mensajeCompleto);
 
-    // Buscar productos mencionados en la respuesta
-    final recomendados =
-        productos
-            .where(
-              (p) => respuesta.toLowerCase().contains(p.nombre.toLowerCase()),
-            )
-            .toList();
+    // Extraer los IDs de productos de la respuesta de Gemini (si los hay)
+    // Se buscarán los nombres de productos y luego se mapearán a IDs para la navegación
+    final List<Product> recomendados = [];
+    for (var product in productos) {
+      // Usar una expresión regular para una búsqueda más flexible (palabra completa)
+      final regex = RegExp(
+        r'\b' + RegExp.escape(product.nombre.toLowerCase()) + r'\b',
+      );
+      if (respuesta.toLowerCase().contains(regex)) {
+        recomendados.add(product);
+      }
+    }
 
     setState(() {
       _messages.insert(0, {
         'sender': 'gemini',
         'text': respuesta,
-        'productos': recomendados,
+        'productos': recomendados, // Pasa los objetos Product completos
       });
     });
   }
@@ -130,8 +216,7 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () async {
-              final productos =
-                  await _obtenerProductos(); // Usas el método correcto
+              final productos = await _obtenerProductos();
               final resumen = _generarResumenProductos(productos);
               print("📦 Producto:\n$resumen");
             },
@@ -148,7 +233,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 final message = _messages[index];
                 final sender = message['sender'];
                 final text = message['text'] ?? '';
-                final productos = message['productos'] as List<Product>?;
+                final productosRecomendados =
+                    message['productos'] as List<Product>?;
 
                 return Column(
                   crossAxisAlignment:
@@ -173,21 +259,67 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Text(text),
                       ),
                     ),
-                    if (productos != null)
-                      ...productos.map(
-                        (product) => ListTile(
-                          title: Text(product.nombre),
-                          subtitle: Text('Precio: S/ ${product.precio}'),
-                          trailing: const Icon(Icons.arrow_forward_ios),
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/detalle_producto',
-                              arguments: product,
-                            );
-                          },
-                        ),
-                      ),
+                    if (productosRecomendados != null &&
+                        productosRecomendados.isNotEmpty)
+                      ...productosRecomendados
+                          .map(
+                            (product) => Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 4.0,
+                              ),
+                              child: Card(
+                                elevation: 2,
+                                child: ListTile(
+                                  leading:
+                                      product.imagenes.isNotEmpty
+                                          ? Image.network(
+                                            product.imagenes[0],
+                                            width: 50,
+                                            height: 50,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) => Image.asset(
+                                                  'assets/images/placeholder.png',
+                                                  width: 50,
+                                                  height: 50,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                          )
+                                          : Image.asset(
+                                            'assets/images/placeholder.png',
+                                            width: 50,
+                                            height: 50,
+                                            fit: BoxFit.cover,
+                                          ),
+                                  title: Text(product.nombre),
+                                  subtitle: Text(
+                                    'S/ ${product.precio.toStringAsFixed(2)} ' +
+                                        (product.descuento > 0
+                                            ? '(Descuento: ${product.descuento}%)'
+                                            : ''),
+                                  ),
+                                  trailing: const Icon(Icons.arrow_forward_ios),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (ctx) => ProductDetailScreen(
+                                              product: product,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
                   ],
                 );
               },

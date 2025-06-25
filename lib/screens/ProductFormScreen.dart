@@ -31,7 +31,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   final _stockController = TextEditingController();
 
   late String estadoSeleccionado;
-  final List<String> estados = ['disponible', 'no disponible', 'inactivo'];
+  final List<String> estados = ['disponible', 'no disponible'];
 
   List<String> colores = [];
   List<String> tallas = [];
