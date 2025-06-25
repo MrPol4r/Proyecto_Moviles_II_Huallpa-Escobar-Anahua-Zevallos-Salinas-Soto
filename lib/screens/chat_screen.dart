@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart'; // Asegúrate que esté bien referenciado
+import 'package:proyecto_moviles_2/screens/product_detail_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -13,7 +14,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
-  final List<Map<String, String>> _messages = [];
+  final List<Map<String, dynamic>> _messages = [];
 
   Future<List<Product>> _obtenerProductos() async {
     final snapshot =
@@ -89,10 +90,34 @@ class _ChatScreenState extends State<ChatScreen> {
       _controller.clear();
     });
 
-    final response = await _obtenerRecomendacion(text);
+    final productos = await _obtenerProductos();
+    final resumen = _generarResumenProductos(productos);
+
+    final mensajeCompleto = """
+  Usuario: $text
+
+  Aquí tienes los productos disponibles:
+  $resumen
+
+  Con base en estos productos, ¿cuál recomendarías? Solo menciona el nombre del producto.
+  """;
+
+    final respuesta = await _getGeminiResponse(mensajeCompleto);
+
+    // Buscar productos mencionados en la respuesta
+    final recomendados =
+        productos
+            .where(
+              (p) => respuesta.toLowerCase().contains(p.nombre.toLowerCase()),
+            )
+            .toList();
 
     setState(() {
-      _messages.insert(0, {'sender': 'gemini', 'text': response});
+      _messages.insert(0, {
+        'sender': 'gemini',
+        'text': respuesta,
+        'productos': recomendados,
+      });
     });
   }
 
@@ -121,24 +146,49 @@ class _ChatScreenState extends State<ChatScreen> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
-                return ListTile(
-                  title: Align(
-                    alignment:
-                        message['sender'] == 'user'
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color:
-                            message['sender'] == 'user'
-                                ? Colors.blue[100]
-                                : Colors.grey[300],
-                        borderRadius: BorderRadius.circular(10),
+                final sender = message['sender'];
+                final text = message['text'] ?? '';
+                final productos = message['productos'] as List<Product>?;
+
+                return Column(
+                  crossAxisAlignment:
+                      sender == 'user'
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
                       ),
-                      child: Text(message['text'] ?? ''),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color:
+                              sender == 'user'
+                                  ? Colors.blue[100]
+                                  : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(text),
+                      ),
                     ),
-                  ),
+                    if (productos != null)
+                      ...productos.map(
+                        (product) => ListTile(
+                          title: Text(product.nombre),
+                          subtitle: Text('Precio: S/ ${product.precio}'),
+                          trailing: const Icon(Icons.arrow_forward_ios),
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/detalle_producto',
+                              arguments: product,
+                            );
+                          },
+                        ),
+                      ),
+                  ],
                 );
               },
             ),

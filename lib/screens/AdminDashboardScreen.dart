@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import 'productlistscreen.dart'; // donde está el CRUD de productos
+import 'package:proyecto_moviles_2/services/AuthService.dart';
+import 'package:proyecto_moviles_2/screens/productlistscreen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -37,7 +38,7 @@ class AdminDashboardScreen extends StatelessWidget {
               );
 
               if (confirmar == true) {
-                AuthService.logout(); // 🔐 Cierra sesión eliminando el ID
+                AuthService.logout();
                 Navigator.of(
                   context,
                 ).pushNamedAndRemoveUntil('/login', (route) => false);
@@ -46,31 +47,143 @@ class AdminDashboardScreen extends StatelessWidget {
           ),
         ],
       ),
+      body: FutureBuilder(
+        future: AuthService.getUserData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // puedes cambiarlo a 1 si prefieres lista
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          children: [
-            _buildCard(
-              context,
-              icon: Icons.shopping_bag,
-              title: 'Gestionar Productos',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ProductListScreen()),
-                );
-              },
+          final userData = snapshot.data as Map<String, dynamic>?;
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '👤 Bienvenido: ${userData?['nombre'] ?? userData?['email'] ?? 'Usuario'}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: GridView(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                    children: [
+                      _buildCard(
+                        context,
+                        icon: Icons.link,
+                        title: 'Conectar Mercado Pago',
+                        onTap: () async {
+                          final uid =
+                              userData?['uid'] ?? AuthService.currentUser?.uid;
+
+                          final uri = Uri.https(
+                            'auth.mercadopago.com',
+                            '/authorization',
+                            {
+                              'client_id': '7096633862126511',
+                              'response_type': 'code',
+                              'platform_id': 'mp',
+                              'redirect_uri':
+                                  'https://mercadopago-nx0i.onrender.com/oauth_callback',
+                              'state': uid ?? '',
+                            },
+                          );
+
+                          if (!await launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication,
+                          )) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'No se pudo abrir la autorización de Mercado Pago',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                      _buildCard(
+                        context,
+                        icon: Icons.shopping_bag,
+                        title: 'Gestionar Productos',
+                        onTap: () async {
+                          bool tieneMetodoPago =
+                              await AuthService.hasPaymentMethod();
+
+                          if (!tieneMetodoPago) {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: const Text(
+                                      'Método de pago requerido',
+                                    ),
+                                    content: const Text(
+                                      'Debes conectar tu cuenta de Mercado Pago antes de gestionar productos.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Cancelar'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          final uri = Uri.https(
+                                            'auth.mercadopago.com',
+                                            '/authorization',
+                                            {
+                                              'client_id': '7096633862126511',
+                                              'response_type': 'code',
+                                              'platform_id': 'mp',
+                                              'redirect_uri':
+                                                  'https://mercadopago-nx0i.onrender.com/oauth_callback',
+                                              'state':
+                                                  AuthService
+                                                      .currentUser
+                                                      ?.uid ??
+                                                  '',
+                                            },
+                                          );
+                                          launchUrl(
+                                            uri,
+                                            mode:
+                                                LaunchMode.externalApplication,
+                                          );
+                                        },
+                                        child: const Text('Conectar ahora'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ProductListScreen(),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            // Puedes agregar más opciones aquí
-            // _buildCard(context, icon: Icons.people, title: 'Gestionar Usuarios', onTap: () {}),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

@@ -1,3 +1,4 @@
+//product_detail_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_moviles_2/screens/FullScreenImageScreen.dart';
